@@ -339,7 +339,7 @@ A extensão em `editores/vscode/` reconhece arquivos `.ttb` e oferece:
 
 ```sh
 cd editores/vscode && bun install && bun run package
-code --install-extension txt2bin-vscode-0.1.0.vsix
+code --install-extension txt2bin-vscode-0.2.0.vsix
 ```
 
 A gramática (`syntaxes/txt2bin.tmLanguage.json`) é TextMate, o mesmo formato usado pelo GitHub (Linguist), Sublime Text, Shiki e outros editores, então pode ser reaproveitada.

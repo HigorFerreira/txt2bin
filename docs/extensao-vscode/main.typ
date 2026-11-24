@@ -8,7 +8,7 @@
   titulo: "A extensão txt2bin para VS Code",
   subtitulo: "Como funciona e como foi concebida",
   autor: "Higor · txt2bin",
-  data: "versão da extensão 0.1.0 · novembro de 2026",
+  data: "versão da extensão 0.2.0 · novembro de 2026",
 )
 
 #include "capitulos/01-introducao.typ"

@@ -22,7 +22,7 @@ await Bun.build({
   [`target: 'node'`], [o Extension Host roda Node, não Bun nem navegador.],
   [`format: 'cjs'`], [o VS Code carrega extensões com `require`, o formato CommonJS.],
   [`external: ['vscode']`], [o módulo `vscode` não existe no disco: o VS Code o injeta quando carrega a extensão. Ele precisa continuar como `require('vscode')`, sem ser embutido.],
-  [`minify: false`], [facilita depurar. O arquivo tem cerca de 50 KB e não precisa encolher.],
+  [`minify: false`], [facilita depurar. O arquivo tem cerca de 65 KB e não precisa encolher.],
 )
 
 == `tsconfig.json`
@@ -35,10 +35,10 @@ Funciona como um `.gitignore` para o pacote: o que estiver listado não entra no
 
 ```text
 node_modules/**  src/**  build.ts  tsconfig.json  bun.lock  .vscode/**
-test/**  scripts/**  previa.html
+test/**  scripts/**  previa.html  SOBRE-A-EXTENSAO.md
 ```
 
-O código-fonte fica de fora porque já está todo dentro de `dist/extension.js`. O pacote final tem 8 arquivos e cerca de 22 KB: o manifesto, o README, a configuração de linguagem, os snippets, a gramática e o `dist/extension.js`.
+O código-fonte fica de fora porque já está todo dentro de `dist/extension.js`. O pacote final tem 8 arquivos e cerca de 26 KB: o manifesto, o README, a configuração de linguagem, os snippets, a gramática e o `dist/extension.js`.
 
 #nota[
   Um `.vsix` é um arquivo ZIP com outro nome. Dá para abrir com qualquer descompactador e ver exatamente o que vai ser instalado.
@@ -67,7 +67,7 @@ O `vsce` também confere o README: links relativos para fora da pasta, como `../
 *Instalar o `.vsix`* no seu VS Code:
 
 ```sh
-code --install-extension txt2bin-vscode-0.1.0.vsix
+code --install-extension txt2bin-vscode-0.2.0.vsix
 ```
 
 Ou, no VS Code: Extensões, menu "…", "Instalar do VSIX…". Para atualizar, gere um novo `.vsix` e instale por cima.

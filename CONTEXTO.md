@@ -219,7 +219,7 @@ Casos verificados com bytes conferidos:
 `editores/vscode/` — identificador da linguagem `txt2bin`, extensão `.ttb`.
 
 - **Gramática** `syntaxes/txt2bin.tmLanguage.json` (TextMate). Cada `<<diretiva` abre um bloco que vai até `(?=^<<)`. O repositório interno tem `expressao`, `assembly`, `escapes`, `rotulo` e `valor_opcao`. O assembly é genérico: mnemônico no início da linha, rótulos `nome:`, diretivas `.xxx`, registradores comuns de várias arquiteturas, comentários `;`, `//`, `@` (após espaço) e `#` (seguido de espaço; `#5` do ARM é imediato), e `${...}` como expressão embutida. A gramática foi gerada por um script Python durante a conversa; hoje o JSON é a fonte, e não há gerador no repositório.
-- **`src/extension.ts`** importa o próprio conversor (`../../../src/index.ts`) e o `build.ts` empacota tudo num `dist/extension.js` CommonJS (~50 KB). Funções:
+- **`src/extension.ts`** importa o próprio conversor (`../../../src/index.ts`) e o `build.ts` empacota tudo num `dist/extension.js` CommonJS (~65 KB). Funções:
   - diagnósticos (`ErroFonte` → sublinhado na linha);
   - hover (valor de `$rótulo`; offset/tamanho da seção; bytes do assembly até 64);
   - definição (F12 em `$rótulo`);

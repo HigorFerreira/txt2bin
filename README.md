@@ -248,7 +248,7 @@ A **VS Code extension** lives in [`editores/vscode/`](editores/vscode/): syntax 
 
 ```sh
 cd editores/vscode && bun install && bun run package
-code --install-extension txt2bin-vscode-0.1.0.vsix
+code --install-extension txt2bin-vscode-0.2.0.vsix
 ```
 
 The grammar is standard TextMate, so it can be reused by other editors and highlighters.

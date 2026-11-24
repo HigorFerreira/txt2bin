@@ -2,3 +2,4 @@ node_modules/
 dist/
 editores/vscode/previa.html
 docs/*.pdf
+editores/vscode/*.vsix

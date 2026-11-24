@@ -78,7 +78,7 @@ O manifesto é um `package.json` comum de npm, com campos a mais que só o VS Co
 {
   "name": "txt2bin-vscode",
   "displayName": "txt2bin",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "publisher": "seu-publisher",
   "license": "MIT",
   "engines": { "vscode": "^1.85.0" },
