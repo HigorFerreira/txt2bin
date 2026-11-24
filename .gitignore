@@ -1,3 +1,4 @@
 node_modules/
 dist/
 editores/vscode/previa.html
+docs/*.pdf
