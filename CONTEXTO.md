@@ -277,15 +277,11 @@ Decisões que são do Higor:
 - [x] README em inglês para o npm (24/11). A especificação completa continua em português em `docs/especificacao.md`.
 - [x] Mensagens em português e inglês (v0.3.0, 24/11): `src/mensagens.ts`, idioma por `--lang`, `TXT2BIN_LANG` ou pelo sistema; a extensão segue o idioma do VS Code. Nomes em inglês na API (`assemble`, `format`, `map`…). Os campos do resultado (`rotulos`, `itens`, `passadas`) continuam em português.
 
-Ideias levantadas na conversa, ainda não implementadas:
+**Funcionalidades planejadas: ver [`docs/roadmap.md`](docs/roadmap.md)**, com o desenho discutido e as perguntas em aberto de cada uma. Em ordem:
 
-- [ ] **`crc32()` e outros checksums sobre um intervalo de rótulos.** Necessário para PNG e ZIP. Exige cuidado no ponto fixo, porque o conteúdo depende de outros bytes.
-- [ ] `<<include arquivo` (texto ou binário, como o `incbin` do NASM).
-- [ ] Repetição/macros (algo como `times` do NASM).
-- [ ] `utf32` / `utf32+`.
-- [ ] Backends de assembly em WebAssembly (sem exigir LLVM instalado).
-- [ ] Testar de verdade os backends Z80/6502 e a extensão dentro do VS Code.
-- [ ] Reaproveitar a gramática TextMate no GitHub Linguist/Shiki.
+1. `<<import` / `<<place` (o próximo, por escolha do Higor); substitui a ideia antiga de `<<include`.
+2. Checksums (`crc32`, `adler32`, soma de 8 bits), com um exemplo de PNG.
+3. Repetição (o Higor pensa em algo parecido com o Typst; desenhar depois do import).
 
 ---
 

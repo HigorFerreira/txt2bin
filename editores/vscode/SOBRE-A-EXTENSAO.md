@@ -992,6 +992,8 @@ Foi escrita em 24/11/2026, numa conversa com o Claude, logo depois da v0.2.0 do 
 
 ### Ideias
 
+A lista viva, com o resto do projeto, está em `docs/roadmap.md` na raiz do repositório.
+
 - Autocompletar `$rótulos`, nomes de diretivas e de arquiteturas (a lista está em `ARQUITETURAS`).
 - Coluna nos erros (exigiria o conversor informar a coluna).
 - Vários erros por análise.

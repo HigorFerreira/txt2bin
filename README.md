@@ -260,6 +260,8 @@ The grammar is standard TextMate, so it can be reused by other editors and highl
 
 ## Development
 
+Planned features (in Portuguese, with the open design questions): [`docs/roadmap.md`](docs/roadmap.md).
+
 ```sh
 bun install
 bun test              # assembly tests are skipped when LLVM is missing
