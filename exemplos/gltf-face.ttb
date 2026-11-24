@@ -1,0 +1,72 @@
+<<# =====================================================================
+ Exemplo 1b — uma face quadrada, num único arquivo .glb
+
+ Conteúdo do chunk BIN:
+   offset  0  posições: 4 vértices × VEC3 float32   = 48 bytes
+   offset 48  índices:  6 × uint16 (2 triângulos)   = 12 bytes
+                                             total = 60 bytes
+=======================================================================
+
+<<# ---------------- Cabeçalho GLB: 12 bytes ----------------
+<<utf8
+glTF
+<<uint32
+2              # versão do contêiner
+$fim           # tamanho total do arquivo em bytes
+
+<<# ---------------- Chunk 0: JSON ----------------
+<<uint32
+$json_fim-$json_ini    # tamanho do chunk (já com o preenchimento)
+<<utf8
+JSON
+<<@json_ini
+<<utf8
+{
+"asset":{"version":"2.0","generator":"escrito à mão"},
+"scene":0,
+"scenes":[{"nodes":[0]}],
+"nodes":[{"name":"face","mesh":0}],
+"meshes":[{"primitives":[{
+  "attributes":{"POSITION":0},
+  "indices":1,
+  "material":0
+}]}],
+"materials":[{
+  "name":"laranja",
+  "doubleSided":true,
+  "pbrMetallicRoughness":{"baseColorFactor":[1.0,0.5,0.1,1.0],"metallicFactor":0.0,"roughnessFactor":0.8}
+}],
+"accessors":[
+  {"bufferView":0,"componentType":5126,"count":4,"type":"VEC3","min":[-0.5,-0.5,0],"max":[0.5,0.5,0]},
+  {"bufferView":1,"componentType":5123,"count":6,"type":"SCALAR"}
+],
+"bufferViews":[
+  {"buffer":0,"byteOffset":0,"byteLength":48,"target":34962},
+  {"buffer":0,"byteOffset":48,"byteLength":12,"target":34963}
+],
+"buffers":[{"byteLength":60}]
+}
+<<align 4 20
+<<@json_fim
+
+<<# ---------------- Chunk 1: BIN ----------------
+<<uint32
+$bin_fim-$bin_ini
+<<hex
+42 49 4E 00            # "BIN\0" (0x004E4942 em little-endian)
+<<@bin_ini
+
+<<# bufferView 0 — posições (offset 0, 48 bytes)
+<<float32
+-0.5 -0.5 0     # v0  canto inferior esquerdo
+ 0.5 -0.5 0     # v1  inferior direito
+ 0.5  0.5 0     # v2  superior direito
+-0.5  0.5 0     # v3  superior esquerdo
+
+<<# bufferView 1 — índices (offset 48, 12 bytes)
+<<uint16
+0 1 2           # triângulo A
+0 2 3           # triângulo B
+<<align 4
+<<@bin_fim
+<<@fim

@@ -1,0 +1,22 @@
+<<# =====================================================================
+ Pisca o LED do Arduino Uno (pino 13 = PB5 do ATmega328P), em assembly AVR.
+
+ Gere em Intel HEX e grave com o avrdude:
+   txt2bin exemplos/arduino-blink.ttb blink.hex -f ihex
+   avrdude -p m328p -c arduino -P /dev/ttyACM0 -b 115200 -U flash:w:blink.hex
+
+ A 16 MHz, o laço de espera gasta cerca de 40 × 256 × 256 × 3 ciclos ≈ 0,5 s.
+=======================================================================
+<<assembly(avr) mcpu=atmega328p
+    sbi  0x04, 5        ; DDRB |= (1 << 5): pino 13 como saída
+laco:
+    sbi  0x03, 5        ; escrever 1 em PINB5 inverte o pino (liga/desliga o LED)
+    ldi  r18, 40
+espera:
+    dec  r20            ; r20 e r19 começam em 0, então dão 256 voltas
+    brne espera
+    dec  r19
+    brne espera
+    dec  r18
+    brne espera
+    rjmp laco

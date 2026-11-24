@@ -1,0 +1,552 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "txt2bin",
+  "scopeName": "source.txt2bin",
+  "patterns": [
+    {
+      "name": "comment.block.section.txt2bin",
+      "begin": "^(<<)(#)(.*)$",
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.definition.comment.txt2bin"
+        },
+        "2": {
+          "name": "punctuation.definition.comment.txt2bin"
+        }
+      },
+      "end": "(?=^<<)"
+    },
+    {
+      "match": "^(<<)(@)([A-Za-z_][\\w.]*)\\s*$",
+      "captures": {
+        "1": {
+          "name": "punctuation.definition.directive.txt2bin"
+        },
+        "2": {
+          "name": "keyword.control.directive.label.txt2bin"
+        },
+        "3": {
+          "name": "entity.name.label.txt2bin"
+        }
+      }
+    },
+    {
+      "begin": "^(<<)(utf8)()\\s*$",
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.definition.directive.txt2bin"
+        },
+        "2": {
+          "name": "keyword.control.directive.txt2bin"
+        },
+        "3": {
+          "name": "keyword.operator.endianness.txt2bin"
+        }
+      },
+      "end": "(?=^<<)",
+      "patterns": [
+        {
+          "include": "#escapes"
+        }
+      ],
+      "contentName": "string.unquoted.text.txt2bin"
+    },
+    {
+      "begin": "^(<<)(utf16)(\\+)?\\s*$",
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.definition.directive.txt2bin"
+        },
+        "2": {
+          "name": "keyword.control.directive.txt2bin"
+        },
+        "3": {
+          "name": "keyword.operator.endianness.txt2bin"
+        }
+      },
+      "end": "(?=^<<)",
+      "patterns": [
+        {
+          "include": "#escapes"
+        }
+      ],
+      "contentName": "string.unquoted.text.txt2bin"
+    },
+    {
+      "begin": "^(<<)(hex)()\\s*$",
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.definition.directive.txt2bin"
+        },
+        "2": {
+          "name": "keyword.control.directive.txt2bin"
+        },
+        "3": {
+          "name": "keyword.operator.endianness.txt2bin"
+        }
+      },
+      "end": "(?=^<<)",
+      "patterns": [
+        {
+          "include": "#comentario"
+        },
+        {
+          "name": "constant.numeric.hex.byte.txt2bin",
+          "match": "[0-9A-Fa-f]{2}"
+        },
+        {
+          "name": "invalid.illegal.hex.txt2bin",
+          "match": "[^\\s#]"
+        }
+      ]
+    },
+    {
+      "begin": "^(<<)(base64url|base64)()\\s*$",
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.definition.directive.txt2bin"
+        },
+        "2": {
+          "name": "keyword.control.directive.txt2bin"
+        },
+        "3": {
+          "name": "keyword.operator.endianness.txt2bin"
+        }
+      },
+      "end": "(?=^<<)",
+      "patterns": [
+        {
+          "include": "#comentario"
+        },
+        {
+          "name": "string.other.base64.txt2bin",
+          "match": "[A-Za-z0-9+/_\\-]+"
+        },
+        {
+          "name": "punctuation.definition.padding.txt2bin",
+          "match": "="
+        },
+        {
+          "name": "invalid.illegal.base64.txt2bin",
+          "match": "[^\\s#]"
+        }
+      ]
+    },
+    {
+      "begin": "^(<<)(u?int(?:8|16|32|64)|float(?:16|32|64))(\\+)?\\s*$",
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.definition.directive.txt2bin"
+        },
+        "2": {
+          "name": "keyword.control.directive.txt2bin"
+        },
+        "3": {
+          "name": "keyword.operator.endianness.txt2bin"
+        }
+      },
+      "end": "(?=^<<)",
+      "patterns": [
+        {
+          "include": "#expressao"
+        }
+      ]
+    },
+    {
+      "begin": "^(<<)(align|fill)\\b(.*)$",
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.definition.directive.txt2bin"
+        },
+        "2": {
+          "name": "keyword.control.directive.txt2bin"
+        },
+        "3": {
+          "patterns": [
+            {
+              "include": "#expressao"
+            }
+          ]
+        }
+      },
+      "end": "(?=^<<)",
+      "patterns": [
+        {
+          "name": "invalid.illegal.content.txt2bin",
+          "match": "\\S+"
+        }
+      ]
+    },
+    {
+      "begin": "^(<<)(assembly)(\\()([^)]*)(\\))(.*)$",
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.definition.directive.txt2bin"
+        },
+        "2": {
+          "name": "keyword.control.directive.txt2bin"
+        },
+        "3": {
+          "name": "punctuation.parenthesis.txt2bin"
+        },
+        "4": {
+          "name": "entity.name.type.architecture.txt2bin"
+        },
+        "5": {
+          "name": "punctuation.parenthesis.txt2bin"
+        },
+        "6": {
+          "patterns": [
+            {
+              "match": "\\b([A-Za-z_]\\w*)(=)(\\S+)",
+              "captures": {
+                "1": {
+                  "name": "variable.parameter.option.txt2bin"
+                },
+                "2": {
+                  "name": "keyword.operator.assignment.txt2bin"
+                },
+                "3": {
+                  "patterns": [
+                    {
+                      "include": "#valor_opcao"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "end": "(?=^<<)",
+      "contentName": "meta.embedded.block.assembly.txt2bin",
+      "patterns": [
+        {
+          "include": "#assembly"
+        }
+      ]
+    },
+    {
+      "match": "^(<<)(\\S*)(.*)$",
+      "captures": {
+        "1": {
+          "name": "punctuation.definition.directive.txt2bin"
+        },
+        "2": {
+          "name": "invalid.illegal.directive.txt2bin"
+        }
+      }
+    },
+    {
+      "name": "invalid.illegal.before-directive.txt2bin",
+      "match": "\\S.*"
+    }
+  ],
+  "repository": {
+    "comentario": {
+      "name": "comment.line.number-sign.txt2bin",
+      "match": "#.*$"
+    },
+    "rotulo": {
+      "match": "(\\$)(\\.|[A-Za-z_][\\w.]*)",
+      "captures": {
+        "1": {
+          "name": "punctuation.definition.variable.txt2bin"
+        },
+        "0": {
+          "name": "variable.other.label.txt2bin"
+        }
+      }
+    },
+    "escapes": {
+      "patterns": [
+        {
+          "name": "constant.character.escape.txt2bin",
+          "match": "\\\\(?:[nrts0\\\\<]|u\\{[0-9A-Fa-f]{1,6}\\})"
+        },
+        {
+          "name": "invalid.illegal.escape.txt2bin",
+          "match": "\\\\."
+        }
+      ]
+    },
+    "expressao": {
+      "patterns": [
+        {
+          "include": "#comentario"
+        },
+        {
+          "name": "constant.character.txt2bin",
+          "match": "'(?:\\\\.|[^'\\\\])'"
+        },
+        {
+          "name": "constant.numeric.hex.txt2bin",
+          "match": "\\b0[xX][0-9A-Fa-f_]+\\b"
+        },
+        {
+          "name": "constant.numeric.binary.txt2bin",
+          "match": "\\b0[bB][01_]+\\b"
+        },
+        {
+          "name": "constant.numeric.octal.txt2bin",
+          "match": "\\b0[oO][0-7_]+\\b"
+        },
+        {
+          "name": "constant.numeric.float.txt2bin",
+          "match": "(?:\\b\\d[\\d_]*)?\\.\\d[\\d_]*(?:[eE][+-]?\\d+)?\\b|\\b\\d[\\d_]*[eE][+-]?\\d+\\b"
+        },
+        {
+          "name": "constant.numeric.decimal.txt2bin",
+          "match": "\\b\\d[\\d_]*\\b"
+        },
+        {
+          "include": "#rotulo"
+        },
+        {
+          "match": "\\b(sin|cos|tan|asin|acos|atan2|atan|sqrt|cbrt|exp|log2|log10|log|hypot|rad|deg|abs|min|max|floor|ceil|round|trunc|int|float)\\s*(?=\\()",
+          "captures": {
+            "1": {
+              "name": "support.function.math.txt2bin"
+            }
+          }
+        },
+        {
+          "name": "constant.language.txt2bin",
+          "match": "\\b(pi|tau|e|inf|nan)\\b"
+        },
+        {
+          "name": "keyword.operator.arithmetic.txt2bin",
+          "match": "\\*\\*|//|<<|>>|[-+*/%&|^~]"
+        },
+        {
+          "name": "punctuation.separator.comma.txt2bin",
+          "match": ","
+        },
+        {
+          "name": "punctuation.parenthesis.txt2bin",
+          "match": "[()]"
+        },
+        {
+          "name": "invalid.illegal.identifier.txt2bin",
+          "match": "\\b[A-Za-z_]\\w*\\b"
+        }
+      ]
+    },
+    "assembly": {
+      "patterns": [
+        {
+          "name": "meta.embedded.expression.txt2bin",
+          "begin": "\\$\\{",
+          "end": "\\}",
+          "beginCaptures": {
+            "0": {
+              "name": "punctuation.section.embedded.begin.txt2bin"
+            }
+          },
+          "endCaptures": {
+            "0": {
+              "name": "punctuation.section.embedded.end.txt2bin"
+            }
+          },
+          "patterns": [
+            {
+              "name": "constant.character.txt2bin",
+              "match": "'(?:\\\\.|[^'\\\\])'"
+            },
+            {
+              "name": "constant.numeric.hex.txt2bin",
+              "match": "\\b0[xX][0-9A-Fa-f_]+\\b"
+            },
+            {
+              "name": "constant.numeric.binary.txt2bin",
+              "match": "\\b0[bB][01_]+\\b"
+            },
+            {
+              "name": "constant.numeric.octal.txt2bin",
+              "match": "\\b0[oO][0-7_]+\\b"
+            },
+            {
+              "name": "constant.numeric.float.txt2bin",
+              "match": "(?:\\b\\d[\\d_]*)?\\.\\d[\\d_]*(?:[eE][+-]?\\d+)?\\b|\\b\\d[\\d_]*[eE][+-]?\\d+\\b"
+            },
+            {
+              "name": "constant.numeric.decimal.txt2bin",
+              "match": "\\b\\d[\\d_]*\\b"
+            },
+            {
+              "include": "#rotulo"
+            },
+            {
+              "match": "\\b(sin|cos|tan|asin|acos|atan2|atan|sqrt|cbrt|exp|log2|log10|log|hypot|rad|deg|abs|min|max|floor|ceil|round|trunc|int|float)\\s*(?=\\()",
+              "captures": {
+                "1": {
+                  "name": "support.function.math.txt2bin"
+                }
+              }
+            },
+            {
+              "name": "constant.language.txt2bin",
+              "match": "\\b(pi|tau|e|inf|nan)\\b"
+            },
+            {
+              "name": "keyword.operator.arithmetic.txt2bin",
+              "match": "\\*\\*|//|<<|>>|[-+*/%&|^~]"
+            },
+            {
+              "name": "punctuation.separator.comma.txt2bin",
+              "match": ","
+            },
+            {
+              "name": "punctuation.parenthesis.txt2bin",
+              "match": "[()]"
+            },
+            {
+              "name": "invalid.illegal.identifier.txt2bin",
+              "match": "\\b[A-Za-z_]\\w*\\b"
+            }
+          ]
+        },
+        {
+          "name": "comment.line.semicolon.asm.txt2bin",
+          "match": ";.*$"
+        },
+        {
+          "name": "comment.line.double-slash.asm.txt2bin",
+          "match": "//.*$"
+        },
+        {
+          "name": "comment.line.number-sign.asm.txt2bin",
+          "match": "(?:^|(?<=\\s))#(?=\\s|$).*$"
+        },
+        {
+          "name": "comment.line.at-sign.asm.txt2bin",
+          "match": "(?<=\\s)@\\s.*$"
+        },
+        {
+          "name": "string.quoted.double.asm.txt2bin",
+          "match": "\"(?:\\\\.|[^\"\\\\])*\""
+        },
+        {
+          "name": "string.quoted.single.asm.txt2bin",
+          "match": "'(?:\\\\.|[^'\\\\])'"
+        },
+        {
+          "match": "^\\s*([A-Za-z_.$][\\w.$]*)(:)(?:\\s*([A-Za-z][A-Za-z0-9_.]*)\\b(?!:))?",
+          "captures": {
+            "1": {
+              "name": "entity.name.label.asm.txt2bin"
+            },
+            "2": {
+              "name": "punctuation.separator.label.txt2bin"
+            },
+            "3": {
+              "name": "keyword.other.mnemonic.asm.txt2bin"
+            }
+          }
+        },
+        {
+          "match": "^\\s*(\\.[A-Za-z_]\\w*)",
+          "captures": {
+            "1": {
+              "name": "keyword.control.directive.asm.txt2bin"
+            }
+          }
+        },
+        {
+          "match": "^\\s*([A-Za-z][A-Za-z0-9_.]*)\\b",
+          "captures": {
+            "1": {
+              "name": "keyword.other.mnemonic.asm.txt2bin"
+            }
+          }
+        },
+        {
+          "name": "keyword.control.directive.asm.txt2bin",
+          "match": "(?<=\\s)\\.[A-Za-z_]\\w*\\b"
+        },
+        {
+          "name": "storage.type.asm.txt2bin",
+          "match": "\\b(?i:offset|ptr|byte|word|dword|qword|tbyte|xmmword|ymmword|short|near|far)\\b"
+        },
+        {
+          "name": "variable.language.register.asm.txt2bin",
+          "match": "%[A-Za-z]\\w*|\\$(?!\\{)[A-Za-z]\\w*|(?i:\\b(?:[re]?[abcd]x|[abcd][lh]|[re]?(?:si|di|sp|bp|ip)|(?:si|di|sp|bp)l|r(?:[89]|1[0-5])[dwb]?|[cdefgs]s|[xyz]mm\\d{1,2}|cr\\d|dr\\d|r\\d{1,2}|[xwvqdsbh]\\d{1,2}|sp|lr|pc|fp|xzr|wzr|zero|ra|gp|tp|t[0-6]|s(?:\\d|1[01])|a[0-7]|ft\\d{1,2}|fs\\d{1,2}|fa[0-7]|f\\d{1,2}|[XYZ]|SREG)\\b)"
+        },
+        {
+          "name": "constant.numeric.hex.asm.txt2bin",
+          "match": "#?-?\\b0[xX][0-9A-Fa-f]+\\b|\\b[0-9][0-9A-Fa-f]*[hH]\\b"
+        },
+        {
+          "name": "constant.numeric.decimal.asm.txt2bin",
+          "match": "#?-?\\b\\d+\\b"
+        },
+        {
+          "name": "keyword.operator.asm.txt2bin",
+          "match": "[-+*/&|^~<>!=]"
+        }
+      ]
+    },
+    "valor_opcao": {
+      "patterns": [
+        {
+          "include": "#comentario"
+        },
+        {
+          "name": "constant.character.txt2bin",
+          "match": "'(?:\\\\.|[^'\\\\])'"
+        },
+        {
+          "name": "constant.numeric.hex.txt2bin",
+          "match": "\\b0[xX][0-9A-Fa-f_]+\\b"
+        },
+        {
+          "name": "constant.numeric.binary.txt2bin",
+          "match": "\\b0[bB][01_]+\\b"
+        },
+        {
+          "name": "constant.numeric.octal.txt2bin",
+          "match": "\\b0[oO][0-7_]+\\b"
+        },
+        {
+          "name": "constant.numeric.float.txt2bin",
+          "match": "(?:\\b\\d[\\d_]*)?\\.\\d[\\d_]*(?:[eE][+-]?\\d+)?\\b|\\b\\d[\\d_]*[eE][+-]?\\d+\\b"
+        },
+        {
+          "name": "constant.numeric.decimal.txt2bin",
+          "match": "\\b\\d[\\d_]*\\b"
+        },
+        {
+          "include": "#rotulo"
+        },
+        {
+          "match": "\\b(sin|cos|tan|asin|acos|atan2|atan|sqrt|cbrt|exp|log2|log10|log|hypot|rad|deg|abs|min|max|floor|ceil|round|trunc|int|float)\\s*(?=\\()",
+          "captures": {
+            "1": {
+              "name": "support.function.math.txt2bin"
+            }
+          }
+        },
+        {
+          "name": "constant.language.txt2bin",
+          "match": "\\b(pi|tau|e|inf|nan)\\b"
+        },
+        {
+          "name": "keyword.operator.arithmetic.txt2bin",
+          "match": "\\*\\*|//|<<|>>|[-+*/%&|^~]"
+        },
+        {
+          "name": "punctuation.separator.comma.txt2bin",
+          "match": ","
+        },
+        {
+          "name": "punctuation.parenthesis.txt2bin",
+          "match": "[()]"
+        },
+        {
+          "name": "string.unquoted.option.txt2bin",
+          "match": "[^\\s]+"
+        }
+      ]
+    }
+  }
+}

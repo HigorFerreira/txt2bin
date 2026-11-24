@@ -1,0 +1,26 @@
+<<# =====================================================================
+ Expressões: 12 vértices de um círculo (VEC2 float32) e uma tabela de
+ seno de 8 bits, calculados no próprio arquivo.
+=======================================================================
+<<@circulo
+<<float32
+(cos(0*tau/12)) (sin(0*tau/12))     (cos(1*tau/12)) (sin(1*tau/12))
+(cos(2*tau/12)) (sin(2*tau/12))     (cos(3*tau/12)) (sin(3*tau/12))
+(cos(4*tau/12)) (sin(4*tau/12))     (cos(5*tau/12)) (sin(5*tau/12))
+(cos(6*tau/12)) (sin(6*tau/12))     (cos(7*tau/12)) (sin(7*tau/12))
+(cos(8*tau/12)) (sin(8*tau/12))     (cos(9*tau/12)) (sin(9*tau/12))
+(cos(10*tau/12)) (sin(10*tau/12))   (cos(11*tau/12)) (sin(11*tau/12))
+<<@seno
+<<int8
+round(127*sin(0*tau/16))  round(127*sin(1*tau/16))  round(127*sin(2*tau/16))  round(127*sin(3*tau/16))
+round(127*sin(4*tau/16))  round(127*sin(5*tau/16))  round(127*sin(6*tau/16))  round(127*sin(7*tau/16))
+round(127*sin(8*tau/16))  round(127*sin(9*tau/16))  round(127*sin(10*tau/16)) round(127*sin(11*tau/16))
+round(127*sin(12*tau/16)) round(127*sin(13*tau/16)) round(127*sin(14*tau/16)) round(127*sin(15*tau/16))
+<<@fim
+<<# Um "cabeçalho" no fim com os offsets e tamanhos das tabelas, em 16 bits:
+<<uint16
+$circulo  (($seno - $circulo) / 8)     # offset e número de vértices
+$seno     ($fim - $seno)              # offset e tamanho da tabela
+<<# Máscaras e deslocamentos:
+<<uint8
+(1 << 5)  (0xF0 >> 4)  (~0 & 0xFF)  (0b1010 ^ 0b0110)

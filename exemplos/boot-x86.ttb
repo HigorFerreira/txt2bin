@@ -1,0 +1,33 @@
+<<# =====================================================================
+ Setor de boot x86: escreve uma mensagem na tela usando a BIOS.
+
+ Gere e rode:
+   txt2bin exemplos/boot-x86.ttb boot.img
+   qemu-system-i386 -drive format=raw,file=boot.img
+
+ A BIOS carrega os primeiros 512 bytes do disco no endereço 0x7C00 e
+ pula para lá. Os dois últimos bytes precisam ser 55 AA.
+=======================================================================
+<<@inicio
+<<assembly(x86_16) org=0x7c00
+    xor ax, ax
+    mov ds, ax
+    mov si, offset msg          ; "offset": o endereço, não o conteúdo
+    mov ah, 0x0e                ; BIOS: escrever caractere (teletipo)
+proximo:
+    lodsb                       ; al = [si], si++
+    test al, al
+    jz fim
+    int 0x10
+    jmp proximo
+fim:
+    hlt
+    jmp fim
+msg:
+<<utf8
+Oi, mundo! Este setor foi escrito em texto.\r\n\0
+<<# Completa até o byte 510. O tamanho depende do código acima, que
+    o txt2bin calcula sozinho (layout em ponto fixo).
+<<fill 510-($.-$inicio)
+<<uint16+
+0x55AA

@@ -1,0 +1,24 @@
+{
+  "assembly": {
+    "nasm16": {
+      "cmd": ["nasm", "-f", "bin", "-o", "{out}", "{in}"],
+      "preludio": "bits 16\norg {org}",
+      "extensao": ".asm"
+    },
+    "nasm64": {
+      "cmd": ["nasm", "-f", "bin", "-o", "{out}", "{in}"],
+      "preludio": "bits 64\norg {org}",
+      "extensao": ".asm"
+    },
+    "z80": {
+      "cmd": ["sjasmplus", "--nologo", "--raw={out}", "{in}"],
+      "preludio": "  org {org}",
+      "extensao": ".asm"
+    },
+    "6502": {
+      "cmd": ["vasm6502_oldstyle", "-quiet", "-Fbin", "-dotdir", "-o", "{out}", "{in}"],
+      "preludio": "  .org {org_hex}",
+      "extensao": ".asm"
+    }
+  }
+}

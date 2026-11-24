@@ -1,0 +1,44 @@
+{
+  "name": "txt2bin",
+  "version": "0.2.0",
+  "description": "Escreva arquivos binários em texto puro: bytes, números, texto, base64 e assembly de várias arquiteturas",
+  "type": "module",
+  "bin": {
+    "txt2bin": "./dist/cli.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "bun": "./src/index.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "test": "bun test",
+    "typecheck": "tsc --noEmit",
+    "build": "bun run scripts/build.ts",
+    "compile": "bun build src/cli.ts --compile --outfile=dist/txt2bin",
+    "prepublishOnly": "bun run typecheck && bun test && bun run build"
+  },
+  "devDependencies": {
+    "bun-types": "^1.4.5",
+    "typescript": "^7.0.2"
+  },
+  "files": [
+    "dist",
+    "src",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "binary",
+    "hex",
+    "assembler",
+    "llvm",
+    "gltf",
+    "file-format",
+    "bytes"
+  ]
+}

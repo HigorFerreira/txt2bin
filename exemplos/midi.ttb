@@ -1,0 +1,43 @@
+<<# =====================================================================
+ Um arquivo MIDI (formato 0) que toca um arpejo de dó maior.
+
+ O MIDI é BIG-ENDIAN: os tamanhos e campos de cabeçalho usam "+".
+ Gere e ouça:   txt2bin exemplos/midi.ttb arpejo.mid
+=======================================================================
+
+<<# ---------------- cabeçalho: chunk MThd ----------------
+<<utf8
+MThd
+<<uint32+
+6               # tamanho dos dados do cabeçalho
+<<uint16+
+0               # formato 0: uma única trilha
+1               # número de trilhas
+96              # tiques por semínima
+
+<<# ---------------- trilha: chunk MTrk ----------------
+<<utf8
+MTrk
+<<uint32+
+$fim-$ini       # tamanho da trilha, calculado pelos rótulos
+<<@ini
+<<# Cada evento: tempo delta (aqui sempre < 128, então 1 byte) + mensagem.
+    0x90 = nota ligada no canal 1; 0x80 = nota desligada.
+<<hex
+00 C0 00        # delta 0: instrumento 0 (piano)
+00 90 3C 64     # delta 0: liga dó4 (60), volume 100
+60 80 3C 40     # delta 96 (uma semínima): desliga dó4
+00 90 40 64     # mi4 (64)
+60 80 40 40
+00 90 43 64     # sol4 (67)
+60 80 43 40
+00 90 48 64     # dó5 (72), duas semínimas
+<<# O delta 192 não cabe em 7 bits. No MIDI, tempos usam VLQ (quantidade de
+    tamanho variável): 7 bits por byte, com o bit 7 indicando "tem mais".
+    192 = 1_1000000 em binário → 0x81 0x40.
+<<uint8
+(0x80 | (192 >> 7))  (192 & 0x7F)
+<<hex
+80 48 40
+00 FF 2F 00     # fim da trilha (meta-evento)
+<<@fim

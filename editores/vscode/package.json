@@ -1,0 +1,91 @@
+{
+  "name": "txt2bin-vscode",
+  "displayName": "txt2bin",
+  "description": "Realce de sintaxe, erros em tempo real e offsets para arquivos .ttb do txt2bin",
+  "version": "0.1.0",
+  "publisher": "seu-publisher",
+  "license": "UNLICENSED",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": ["Programming Languages", "Linters"],
+  "keywords": ["binary", "hex", "assembly", "txt2bin", "ttb"],
+  "main": "./dist/extension.js",
+  "activationEvents": [],
+  "contributes": {
+    "languages": [{
+      "id": "txt2bin",
+      "aliases": ["txt2bin", "TTB"],
+      "extensions": [".ttb"],
+      "configuration": "./language-configuration.json"
+    }],
+    "grammars": [{
+      "language": "txt2bin",
+      "scopeName": "source.txt2bin",
+      "path": "./syntaxes/txt2bin.tmLanguage.json"
+    }],
+    "snippets": [{
+      "language": "txt2bin",
+      "path": "./snippets/txt2bin.json"
+    }],
+    "commands": [
+      {
+        "command": "txt2bin.gerar",
+        "title": "Gerar arquivo binário",
+        "category": "txt2bin"
+      },
+      {
+        "command": "txt2bin.mapa",
+        "title": "Mostrar mapa de seções",
+        "category": "txt2bin"
+      },
+      {
+        "command": "txt2bin.hex",
+        "title": "Mostrar dump hexadecimal",
+        "category": "txt2bin"
+      }
+    ],
+    "menus": {
+      "editor/title": [{
+        "command": "txt2bin.gerar",
+        "when": "editorLangId == txt2bin",
+        "group": "navigation"
+      }]
+    },
+    "configuration": {
+      "title": "txt2bin",
+      "properties": {
+        "txt2bin.validacao": {
+          "type": "string",
+          "enum": ["aoDigitar", "aoSalvar", "desligada"],
+          "default": "aoDigitar",
+          "description": "Quando converter o arquivo para mostrar erros e offsets."
+        },
+        "txt2bin.atraso": {
+          "type": "number",
+          "default": 400,
+          "description": "Espera (ms) após parar de digitar antes de validar. Seções de assembly chamam o llvm-mc."
+        },
+        "txt2bin.mostrarOffsets": {
+          "type": "boolean",
+          "default": true,
+          "description": "Mostra offset e tamanho no fim de cada linha <<diretiva."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "build": "bun run build.ts",
+    "typecheck": "tsc --noEmit",
+    "package": "bun run build && vsce package --no-dependencies --skip-license --allow-missing-repository"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "@types/vscode": "1.85.0",
+    "@vscode/vsce": "^4.1.1",
+    "bun-types": "^1.4.5",
+    "typescript": "^7.0.2",
+    "vscode-oniguruma": "^2.0.1",
+    "vscode-textmate": "^9.3.2"
+  }
+}

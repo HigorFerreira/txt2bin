@@ -1,0 +1,28 @@
+{
+  "GLB (cabeçalho e chunks)": {
+    "prefix": "glb",
+    "description": "Esqueleto de um arquivo .glb com tamanhos calculados por rótulos",
+    "body": [
+      "<<utf8", "glTF", "<<uint32", "2 \\$fim", "",
+      "<<uint32", "\\$json_fim-\\$json_ini", "<<utf8", "JSON", "<<@json_ini", "<<utf8",
+      "{\"asset\":{\"version\":\"2.0\"}$1}", "<<align 4 20", "<<@json_fim", "",
+      "<<uint32", "\\$bin_fim-\\$bin_ini", "<<hex", "42494E00", "<<@bin_ini",
+      "<<float32", "$0", "<<align 4", "<<@bin_fim", "<<@fim"
+    ]
+  },
+  "Bloco com tamanho": {
+    "prefix": "bloco",
+    "description": "uint32 com o tamanho do bloco seguinte, calculado por rótulos",
+    "body": ["<<uint32${1:+}", "\\$${2:fim}-\\$${3:ini}", "<<@$3", "$0", "<<@$2"]
+  },
+  "Assembly": {
+    "prefix": "asm",
+    "body": ["<<assembly(${1|x86_64,x86_16,x86,arm64,apple_silicon,arm,thumb,cortex_m0,cortex_m4,avr,riscv32,riscv64,mips,mipsel,ppc|})${2: org=0}", "    $0"]
+  },
+  "Setor de boot": {
+    "prefix": "boot",
+    "body": ["<<@inicio", "<<assembly(x86_16) org=0x7c00", "    $0", "<<fill 510-(\\$.-\\$inicio)", "<<uint16+", "0x55AA"]
+  },
+  "Comentário": { "prefix": "#", "body": ["<<# $0"] },
+  "Rótulo": { "prefix": "@", "body": ["<<@${1:nome}"] }
+}
