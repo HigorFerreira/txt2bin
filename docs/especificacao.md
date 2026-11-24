@@ -182,7 +182,7 @@ Instalação do LLVM:
 | Debian/Ubuntu | `apt install llvm lld` |
 | Windows | `winget install LLVM.LLVM` |
 
-Os executáveis são procurados no `PATH`, com sufixos de versão (`llvm-mc-18`) e nos caminhos do Homebrew. Também dá para indicar os caminhos com as variáveis `LLVM_MC` e `LD_LLD`. O comando `txt2bin --arquiteturas` mostra o que foi encontrado.
+Os executáveis são procurados no `PATH`, com sufixos de versão (`llvm-mc-18`) e nos caminhos do Homebrew. Também dá para indicar os caminhos com as variáveis `LLVM_MC` e `LD_LLD`. O comando `txt2bin --arquiteturas` (ou `--architectures`) mostra o que foi encontrado.
 
 ### Arquiteturas
 
@@ -272,10 +272,13 @@ txt2bin entrada.ttb [saida] [opções]
   --mime TIPO         tipo MIME do datauri
   --map               mapa de seções e rótulos (na saída de erro)
   --config ARQ        backends de assembly
-  --arquiteturas      lista as arquiteturas e onde está o LLVM
+  --arquiteturas      lista as arquiteturas e onde está o LLVM (também --architectures)
+  --lang pt|en        idioma das mensagens (padrão: o do sistema)
 ```
 
 `ihex` é o formato Intel HEX, o que o `avrdude` e muitos gravadores de microcontrolador esperam. Os erros vêm como `arquivo:linha: mensagem`, inclusive os do montador, com a linha traduzida para o arquivo-fonte.
+
+**Idioma.** Mensagens, ajuda e mapa saem em português ou inglês. A ordem de escolha é: `--lang`; a variável `TXT2BIN_LANG`; o idioma do sistema (`LC_ALL`, `LC_MESSAGES`, `LANG`, `LANGUAGE`). Português se começar com `pt`, inglês nos demais casos.
 
 ## 9. API
 
@@ -289,7 +292,9 @@ formatar(r.bytes, 'ihex');             // string
 console.log(mapa(r));
 ```
 
-Os erros são `ErroFonte`, com `.linha` e `.formatar(nomeDoArquivo)`.
+Os erros são `ErroFonte`, com `.linha` e `.formatar(nomeDoArquivo)`. Use `ehErroFonte(e)` para testar, e não `instanceof`.
+
+`definirIdioma('pt' | 'en')` fixa o idioma das mensagens. As funções também têm nomes em inglês: `assemble`, `format`, `map`, `SourceError`, `isSourceError`, `setLanguage`.
 
 ## 10. Exemplos
 

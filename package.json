@@ -1,6 +1,6 @@
 {
   "name": "txt2bin",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Write binary files as plain text: hex, text, base64, numbers in any byte order, self-computing labels and inline assembly for 30+ architectures",
   "license": "MIT",
   "author": "Higor",

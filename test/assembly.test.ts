@@ -4,6 +4,10 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { montar, ErroFonte, type Config } from '../src/index.ts';
+import { definirIdioma } from '../src/mensagens.ts';
+
+// os testes conferem o texto das mensagens em português
+definirIdioma('pt');
 import { acharFerramenta } from '../src/asm/montador.ts';
 
 const temLLVM = !!acharFerramenta('llvm-mc', 'LLVM_MC') && !!acharFerramenta('ld.lld', 'LD_LLD');

@@ -3,6 +3,7 @@ import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'no
 import { tmpdir } from 'node:os';
 import { delimiter, join } from 'node:path';
 import { ARQUITETURAS, normalizarNome } from './arquiteturas.ts';
+import { msg } from '../mensagens.ts';
 import { conteudo, lerElf, SHF_ALLOC, SHT_REL, SHT_RELA } from './elf.ts';
 
 /** Backend definido pelo usuário: qualquer montador que gere binário puro. */
@@ -52,10 +53,6 @@ export function acharFerramenta(nome: string, variavel: string): string | null {
 	return achado;
 }
 
-const DICA_INSTALAR =
-	'instale o LLVM: macOS "brew install llvm lld"; Debian/Ubuntu "apt install llvm lld"; ' +
-	'Windows "winget install LLVM.LLVM". Ou aponte as variáveis LLVM_MC e LD_LLD para os executáveis.';
-
 // ---------------------------------------------------------------------------
 // Montagem
 // ---------------------------------------------------------------------------
@@ -98,11 +95,10 @@ function montarLLVM(p: PedidoAsm, dir: string): Uint8Array {
 	const nome = normalizarNome(p.arquitetura);
 	const arq = ARQUITETURAS[nome];
 	if (!arq && !p.opcoes.triple) {
-		throw new ErroAsm(`arquitetura desconhecida "${p.arquitetura}". Disponíveis: ${Object.keys(ARQUITETURAS).join(', ')}. ` +
-			'Também dá para passar triple=<llvm-triple> ou configurar um backend próprio.');
+		throw new ErroAsm(msg().arquiteturaDesconhecida(p.arquitetura, Object.keys(ARQUITETURAS).join(', ')));
 	}
 	const mc = acharFerramenta('llvm-mc', 'LLVM_MC');
-	if (!mc) throw new ErroAsm(`llvm-mc não encontrado; ${DICA_INSTALAR}`);
+	if (!mc) throw new ErroAsm(msg().llvmMcAusente(msg().dicaInstalar()));
 
 	const triple = p.opcoes.triple ?? arq!.triple;
 	const mcpu = p.opcoes.mcpu ?? arq?.mcpu;
@@ -119,7 +115,7 @@ function montarLLVM(p: PedidoAsm, dir: string): Uint8Array {
 			// comentário x86 é "#" e ";" separa instruções; convertemos o primeiro
 			// ";" fora de aspas de cada linha.
 			codigo = codigo.split('\n').map(comentarioIntel).join('\n');
-		} else if (sintaxe !== 'att') throw new ErroAsm(`syntax deve ser intel ou att (recebeu "${sintaxe}")`);
+		} else if (sintaxe !== 'att') throw new ErroAsm(msg().sintaxeInvalida(sintaxe));
 	}
 	// Um rótulo no fim marca o tamanho real do código: alguns alvos (MIPS)
 	// completam a seção até o alinhamento, e esses bytes não são do usuário.
@@ -130,7 +126,7 @@ function montarLLVM(p: PedidoAsm, dir: string): Uint8Array {
 		if (mcpu) args.push(`-mcpu=${mcpu}`);
 		if (mattr) args.push(`-mattr=${mattr}`);
 		const r = spawnSync(mc, args, { input: [...pre, codigo, `${FIM}:`, ''].join('\n'), encoding: 'utf8' });
-		if (r.error) throw new ErroAsm(`falha ao executar llvm-mc: ${r.error.message}`);
+		if (r.error) throw new ErroAsm(msg().falhaAoExecutar('llvm-mc', r.error.message));
 		if (r.status !== 0) throw erroDoMontador(r.stderr, pre.length);
 		const bin = readFileSync(obj);
 		return { bin, elf: lerElf(bin) };
@@ -139,8 +135,7 @@ function montarLLVM(p: PedidoAsm, dir: string): Uint8Array {
 	let { bin, elf } = montarObj(0);
 	const outras = elf.secoes.filter(s => (s.flags & SHF_ALLOC) !== 0n && s.tamanho > 0 && s.nome !== '.text' && !METADADOS.test(s.nome));
 	if (outras.length) {
-		throw new ErroAsm(`o código gerou dados fora de .text (${outras.map(s => s.nome).join(', ')}). ` +
-			'Escreva tudo na seção padrão, sem .data/.bss/.section.');
+		throw new ErroAsm(msg().dadosForaDoText(outras.map(s => s.nome).join(', ')));
 	}
 	const precisaLigar = elf.secoes.some(s => (s.tipo === SHT_REL || s.tipo === SHT_RELA) && s.tamanho > 0 && /\.text$/.test(s.nome));
 	let descartar = 0;
@@ -149,7 +144,7 @@ function montarLLVM(p: PedidoAsm, dir: string): Uint8Array {
 		// Há referências a endereços (absolutos, ou que o montador deixou para o
 		// ligador). O ld.lld resolve tudo colocando .text no endereço "org".
 		const lld = acharFerramenta('ld.lld', 'LD_LLD');
-		if (!lld) throw new ErroAsm(`o código tem relocações e precisa do ld.lld para resolvê-las; ${DICA_INSTALAR}`);
+		if (!lld) throw new ErroAsm(msg().precisaLld(msg().dicaInstalar()));
 		// O ligador alinha .text; se org não estiver alinhado, ligamos num endereço
 		// alinhado abaixo de org e pomos bytes de enchimento antes do código.
 		const alin = BigInt(Math.max(1, elf.secoes.find(s => s.nome === '.text')?.alinhamento ?? 1));
@@ -159,13 +154,13 @@ function montarLLVM(p: PedidoAsm, dir: string): Uint8Array {
 		const base = p.org - BigInt(descartar);
 		const l = spawnSync(lld, [obj, '-o', saida, `-Ttext=${hexOrg(base)}`, '-e', '0', '-N', '--build-id=none', '-static'], { encoding: 'utf8' });
 		if (l.status !== 0) {
-			const msg = (l.stderr || l.stdout || '').trim().replace(/^ld\.lld: /gm, '');
-			throw new ErroAsm(`ld.lld falhou: ${msg}` + (/undefined symbol/.test(msg) ? ' (rótulo inexistente no código?)' : ''));
+			const saidaLld = (l.stderr || l.stdout || '').trim().replace(/^ld\.lld: /gm, '');
+			throw new ErroAsm(msg().lldFalhou(saidaLld) + (/undefined symbol/.test(saidaLld) ? msg().dicaSimboloIndefinido() : ''));
 		}
 		bin = readFileSync(saida);
 		elf = lerElf(bin);
 		const t = elf.secoes.find(s => s.nome === '.text');
-		if (t && t.endereco !== base) throw new ErroAsm(`o ligador pôs o código em ${hexOrg(t.endereco)} em vez de ${hexOrg(base)}`);
+		if (t && t.endereco !== base) throw new ErroAsm(msg().ligadorEndereco(hexOrg(t.endereco), hexOrg(base)));
 	}
 
 	const texto = elf.secoes.find(s => s.nome === '.text');
@@ -181,7 +176,7 @@ function montarLLVM(p: PedidoAsm, dir: string): Uint8Array {
 /** Converte "<stdin>:5:3: error: ..." em ErroAsm com a linha do usuário. */
 function erroDoMontador(stderr: string, linhasPreludio: number): ErroAsm {
 	const m = /<stdin>:(\d+):(\d+): error: (.*)(?:\n(.*)\n(.*))?/.exec(stderr);
-	if (!m) return new ErroAsm(stderr.trim() || 'erro do montador');
+	if (!m) return new ErroAsm(stderr.trim() || msg().erroDoMontador());
 	const linha = Number(m[1]) - linhasPreludio;
 	const detalhe = m[4] !== undefined ? `\n		${m[4]}\n		${m[5] ?? ''}` : '';
 	return new ErroAsm(`${m[3]}${detalhe}`, linha);
@@ -196,8 +191,8 @@ function montarComando(p: PedidoAsm, b: BackendComando, dir: string): Uint8Array
 	writeFileSync(entrada, preludio + (preludio && !preludio.endsWith('\n') ? '\n' : '') + p.codigo + '\n');
 	const [exe, ...args] = b.cmd.map(trocar);
 	const r = spawnSync(exe!, args, { cwd: dir, encoding: 'utf8' });
-	if (r.error) throw new ErroAsm(`falha ao executar "${exe}": ${r.error.message}`);
-	if (r.status !== 0) throw new ErroAsm(`"${exe}" terminou com código ${r.status}:\n${(r.stderr || r.stdout).trim()}`);
-	if (!existsSync(saida)) throw new ErroAsm(`"${exe}" não gerou o arquivo de saída {out}`);
+	if (r.error) throw new ErroAsm(msg().falhaAoExecutar(`"${exe}"`, r.error.message));
+	if (r.status !== 0) throw new ErroAsm(msg().terminouComCodigo(exe!, String(r.status), (r.stderr || r.stdout).trim()));
+	if (!existsSync(saida)) throw new ErroAsm(msg().naoGerouSaida(exe!));
 	return Uint8Array.from(readFileSync(saida));
 }

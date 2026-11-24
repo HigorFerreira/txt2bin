@@ -19,6 +19,7 @@ export interface Contexto {
 export class ErroExpr extends Error {}
 
 import { ErroFonte } from './erros.ts';
+import { msg } from './mensagens.ts';
 
 // ---------------------------------------------------------------------------
 // Léxico
@@ -52,11 +53,11 @@ function lexico(src: string): Tok[] {
 		// caractere: 'A'	'\n'	'\''
 		if (c === "'") {
 			const m = /^'(\\.|[^'\\])'/u.exec(src.slice(i));
-			if (!m) throw new ErroExpr(`literal de caractere inválido em "${src.slice(i)}"`);
+			if (!m) throw new ErroExpr(msg().caractereInvalido(src.slice(i)));
 			const ch = m[1]!.startsWith('\\')
 				? ({ n: '\n', r: '\r', t: '\t', '0': '\0', '\\': '\\', "'": "'" } as Record<string, string>)[m[1]![1]!]
 				: m[1]!;
-			if (ch === undefined) throw new ErroExpr(`escape desconhecido em ${m[0]}`);
+			if (ch === undefined) throw new ErroExpr(msg().escapeCaractere(m[0]));
 			out.push({ t: 'num', v: BigInt(ch.codePointAt(0)!) });
 			i += m[0].length;
 			continue;
@@ -65,7 +66,7 @@ function lexico(src: string): Tok[] {
 		if (c === '$') {
 			if (src[i + 1] === '.') { out.push({ t: 'rot', v: '.' }); i += 2; continue; }
 			const m = /^\$([A-Za-z_][\w.]*)/.exec(src.slice(i));
-			if (!m) throw new ErroExpr('"$" precisa ser seguido de um nome de rótulo ou "."');
+			if (!m) throw new ErroExpr(msg().cifraoSemNome());
 			out.push({ t: 'rot', v: m[1]! });
 			i += m[0].length;
 			continue;
@@ -74,7 +75,7 @@ function lexico(src: string): Tok[] {
 		if (id) { out.push({ t: 'id', v: id[0] }); i += id[0].length; continue; }
 		const op = OPS.find(o => src.startsWith(o, i));
 		if (op) { out.push({ t: 'op', v: op }); i += op.length; continue; }
-		throw new ErroExpr(`caractere inesperado "${c}"`);
+		throw new ErroExpr(msg().caractereInesperado(c));
 	}
 	out.push({ t: 'fim' });
 	return out;
@@ -89,7 +90,7 @@ const num = (v: Valor) => Number(v);
 function inteiro(v: Valor, op: string): bigint {
 	if (ehInt(v)) return v;
 	if (Number.isInteger(v)) return BigInt(v);
-	throw new ErroExpr(`o operador ${op} exige inteiros (recebeu ${v})`);
+	throw new ErroExpr(msg().exigeInteiros(op, String(v)));
 }
 
 function binario(op: string, a: Valor, b: Valor): Valor {
@@ -98,17 +99,17 @@ function binario(op: string, a: Valor, b: Valor): Valor {
 		case '-': return ehInt(a) && ehInt(b) ? a - b : num(a) - num(b);
 		case '*': return ehInt(a) && ehInt(b) ? a * b : num(a) * num(b);
 		case '/': {
-			if (num(b) === 0) throw new ErroExpr('divisão por zero');
+			if (num(b) === 0) throw new ErroExpr(msg().divisaoPorZero());
 			if (ehInt(a) && ehInt(b) && a % b === 0n) return a / b;	 // exata: continua inteira
 			return num(a) / num(b);
 		}
 		case '//': {
-			if (num(b) === 0) throw new ErroExpr('divisão por zero');
+			if (num(b) === 0) throw new ErroExpr(msg().divisaoPorZero());
 			if (ehInt(a) && ehInt(b)) { const q = a / b; return (a % b !== 0n && (a < 0n) !== (b < 0n)) ? q - 1n : q; }
 			return Math.floor(num(a) / num(b));
 		}
 		case '%': {
-			if (num(b) === 0) throw new ErroExpr('módulo por zero');
+			if (num(b) === 0) throw new ErroExpr(msg().moduloPorZero());
 			if (ehInt(a) && ehInt(b)) return ((a % b) + b) % b;
 			return num(a) - num(b) * Math.floor(num(a) / num(b));
 		}
@@ -121,7 +122,7 @@ function binario(op: string, a: Valor, b: Valor): Valor {
 		case '<<': return inteiro(a, op) << inteiro(b, op);
 		case '>>': return inteiro(a, op) >> inteiro(b, op);
 	}
-	throw new ErroExpr(`operador desconhecido ${op}`);
+	throw new ErroExpr(msg().operadorDesconhecido(op));
 }
 
 const f1 = (f: (x: number) => number) => (a: Valor[]) => f(num(a[0]!));
@@ -154,12 +155,12 @@ const NIVEIS = [['|'], ['^'], ['&'], ['<<', '>>'], ['+', '-'], ['*', '/', '//', 
 
 export function avaliar(src: string, ctx: Contexto): Valor {
 	if (/^\s*(\*\*|\/\/|<<|>>|[-+*/%&|^~])\s*$/.test(src))
-		throw new ErroExpr(`"${src.trim()}" sozinho — para usar espaços numa expressão, coloque-a entre parênteses: (1 + 2)`);
+		throw new ErroExpr(msg().operadorSozinho(src.trim()));
 	const toks = lexico(src);
 	let p = 0;
 	const olha = () => toks[p]!;
 	const ehOp = (v: string) => { const t = olha(); return t.t === 'op' && t.v === v; };
-	const espera = (v: string) => { if (!ehOp(v)) throw new ErroExpr(`esperava "${v}" em "${src}"`); p++; };
+	const espera = (v: string) => { if (!ehOp(v)) throw new ErroExpr(msg().esperava(v, src)); p++; };
 
 	const nivel = (k: number): Valor => {
 		if (k === NIVEIS.length) return unario();
@@ -189,34 +190,34 @@ export function avaliar(src: string, ctx: Contexto): Valor {
 			p++;
 			if (t.v === '.') return ctx.aqui;
 			const v = ctx.rotulos.get(t.v);
-			if (v === undefined) throw new ErroExpr(`rótulo indefinido "$${t.v}"`);
+			if (v === undefined) throw new ErroExpr(msg().rotuloIndefinido(t.v));
 			return v;
 		}
 		if (t.t === 'id') {
 			p++;
 			if (ehOp('(')) {
 				const fn = FUNCOES[t.v];
-				if (!fn) throw new ErroExpr(`função desconhecida "${t.v}"`);
+				if (!fn) throw new ErroExpr(msg().funcaoDesconhecida(t.v));
 				p++;
 				const args: Valor[] = [];
 				if (!ehOp(')')) { args.push(nivel(0)); while (ehOp(',')) { p++; args.push(nivel(0)); } }
 				espera(')');
 				const [lo, hi] = typeof fn.n === 'number' ? [fn.n, fn.n] : fn.n;
-				if (args.length < lo || args.length > hi) throw new ErroExpr(`${t.v}() recebeu ${args.length} argumento(s)`);
+				if (args.length < lo || args.length > hi) throw new ErroExpr(msg().argumentos(t.v, args.length));
 				return fn.f(args);
 			}
 			if (t.v in CONSTANTES) return CONSTANTES[t.v]!;
-			throw new ErroExpr(`nome desconhecido "${t.v}" (rótulos começam com $)`);
+			throw new ErroExpr(msg().nomeDesconhecido(t.v));
 		}
 		if (ehOp('(')) { p++; const v = nivel(0); espera(')'); return v; }
-		if (t.t === 'fim') throw new ErroExpr(`expressão incompleta "${src}"`);
-		throw new ErroExpr(`"${(t as { v: string }).v}" inesperado em "${src}"`);
+		if (t.t === 'fim') throw new ErroExpr(msg().expressaoIncompleta(src));
+		throw new ErroExpr(msg().inesperado((t as { v: string }).v, src));
 	};
 
 	const v = nivel(0);
 	if (olha().t !== 'fim') {
 		const t = olha() as { v: unknown };
-		throw new ErroExpr(`sobrou "${String(t.v)}" em "${src}" — para usar espaços numa expressão, coloque-a entre parênteses`);
+		throw new ErroExpr(msg().sobrou(String(t.v), src));
 	}
 	return v;
 }
@@ -254,11 +255,11 @@ export function separarTermos(corpo: string, linhaInicial: number): Termo[] {
 		if (c === '\n') linha++;
 		if (/\s/.test(c) && prof === 0) { fechar(); continue; }
 		if (c === '(' && prof++ === 0) linhaAbre = linha;
-		if (c === ')' && --prof < 0) throw new ErroFonte(linha, '")" sem "(" correspondente');
+		if (c === ')' && --prof < 0) throw new ErroFonte(linha, msg().fechaSemAbre());
 		if (!atual) linhaTermo = linha;
 		atual += c === '\n' ? ' ' : c;
 	}
-	if (prof !== 0) throw new ErroFonte(linhaAbre, '"(" sem ")" correspondente');
+	if (prof !== 0) throw new ErroFonte(linhaAbre, msg().abreSemFecha());
 	fechar();
 	return out;
 }

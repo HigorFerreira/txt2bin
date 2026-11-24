@@ -163,6 +163,7 @@ src/
                    repetido até o ponto fixo; emissão final
   saida.ts         formatar() (bin/hex/base64/datauri/ihex), intelHex(), mapa()
   erros.ts         ErroFonte (linha + mensagem) e ehErroFonte()
+  mensagens.ts     todas as mensagens, em pt e en; detectarIdioma(), definirIdioma(), msg()
   asm/
     arquiteturas.ts  ARQUITETURAS (triple, mcpu, mattr, prelúdio) e APELIDOS
     montador.ts      montar(): cache; LLVM (llvm-mc → ELF → [ld.lld] → .text);
@@ -183,7 +184,7 @@ editores/vscode/   extensão (seção 6)
 - **Seções de metadados ignoradas** (`.reginfo`, `.MIPS.*`, `.note*`, `.*.attributes`). Qualquer outra seção alocável fora de `.text` é erro ("use só a seção padrão").
 - **`org` desalinhado:** o `ld.lld` alinha `.text`. Quando `org % alinhamento ≠ 0`, o código é montado de novo com `.fill delta` na frente, ligado em `org - delta`, e os `delta` bytes iniciais são descartados.
 - **Thumb:** o bit 0 do símbolo de fim é zerado.
-- **Empacotamento:** o `bun build` chegou a duplicar módulos no bundle para Node, e o `instanceof ErroFonte` falhava. Por isso existe `ehErroFonte()`, que testa pela forma (`name === 'ErroFonte'` e `linha` numérica). **Use sempre `ehErroFonte`, nunca `instanceof`.**
+- **Empacotamento:** o `bun build` chegou a duplicar módulos no bundle para Node, e o `instanceof ErroFonte` falhava. Por isso existe `ehErroFonte()`, que testa pela forma (`name === 'ErroFonte'` e `linha` numérica). **Use sempre `ehErroFonte`, nunca `instanceof`.** O Bun 1.3 ainda duplica módulos no `dist/cli.js` (`mensagens.ts`, `erros.ts`, `montador.ts`…, confirmado em 24/11). Por isso o idioma das mensagens fica no `globalThis` (`Symbol.for('txt2bin.idioma')`), e o `scripts/build.ts` roda o CLI empacotado no Node com `--lang en` e `--lang pt`, falhando o build (e o `npm publish`) se o idioma não chegar ao conversor. **Estado global novo deve seguir o mesmo padrão.**
 
 ---
 
@@ -267,7 +268,7 @@ Decisões que são do Higor:
 - [x] Repositório: https://github.com/HigorFerreira/txt2bin (`repository`, `homepage` e `bugs` no `package.json`).
 - [ ] `publisher` do VS Code Marketplace.
 - [x] README em inglês para o npm (24/11). A especificação completa continua em português em `docs/especificacao.md`.
-- [ ] Mensagens de erro, `--map`, `--arquiteturas` e nomes da API estão em português; o README em inglês avisa isso. Avaliar internacionalizar antes de divulgar fora do Brasil.
+- [x] Mensagens em português e inglês (v0.3.0, 24/11): `src/mensagens.ts`, idioma por `--lang`, `TXT2BIN_LANG` ou pelo sistema; a extensão segue o idioma do VS Code. Nomes em inglês na API (`assemble`, `format`, `map`…). Os campos do resultado (`rotulos`, `itens`, `passadas`) continuam em português.
 
 Ideias levantadas na conversa, ainda não implementadas:
 
@@ -292,6 +293,7 @@ Ideias levantadas na conversa, ainda não implementadas:
 **Convenções:**
 
 - Português em identificadores, mensagens e documentação. Mensagens de erro dizem **o que** está errado e, quando possível, **como corrigir** (ex.: "use parênteses", "isso é base64url?").
+- **Toda mensagem visível ao usuário mora em `src/mensagens.ts`, nas duas tabelas (`pt` e `en`).** O tipo de `en` é o de `pt`, então o `tsc` acusa tradução faltando. Nunca escreva texto de mensagem direto num `throw`. Os testes que conferem texto fixam o idioma com `definirIdioma('pt')`.
 - Todo erro ligado ao arquivo-fonte é `ErroFonte(linha, mensagem)`. Use `naLinha()` em `montar.ts` para envolver código que pode lançar.
 - Não use `instanceof ErroFonte`; use `ehErroFonte()`.
 - Uma nova diretiva precisa de: um caso em `interpretar()` (`montar.ts`), a regra de `+` (`PODE_BIG_ENDIAN`), uma linha na tabela de `docs/especificacao.md` e na do `README.md` (inglês), uma regra na gramática do VS Code e testes.

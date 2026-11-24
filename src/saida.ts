@@ -1,3 +1,4 @@
+import { msg } from './mensagens.ts';
 import type { Resultado } from './montar.ts';
 
 export const FORMATOS = ['bin', 'hex', 'base64', 'base64url', 'datauri', 'ihex'] as const;
@@ -38,15 +39,15 @@ export function intelHex(bytes: Uint8Array, base = 0): string {
 
 /** Tabela com o offset, o tamanho e a distância ao último rótulo de cada seção. */
 export function mapa(r: Resultado): string {
-	const linhas = ['	offset (hex)	 offset	 tamanho	relativo						seção'];
+	const linhas = [msg().mapaCabecalho()];
 	let ultimo: { nome: string; off: number } | null = null;
 	for (const it of r.itens) {
 		if (it.tipo === 'comentario') continue;
 		if (it.tipo === 'rotulo') ultimo = { nome: it.rotulo!, off: it.offset };
 		const rel = ultimo && it.tipo !== 'rotulo' ? `@${ultimo.nome}+${it.offset - ultimo.off}` : '';
 		const nome = it.tipo === 'rotulo' ? `@${it.rotulo}` : `<<${it.secao.cabecalho}`;
-		linhas.push(`	0x${it.offset.toString(16).padStart(8, '0')}	${String(it.offset).padStart(7)}	${String(it.tamanho).padStart(7)}	${rel.padEnd(18)}	${nome}	(linha ${it.secao.linha})`);
+		linhas.push(`	0x${it.offset.toString(16).padStart(8, '0')}	${String(it.offset).padStart(7)}	${String(it.tamanho).padStart(7)}	${rel.padEnd(18)}	${nome}	${msg().mapaLinha(it.secao.linha)}`);
 	}
-	linhas.push(`	total: ${r.bytes.length} bytes · ${r.rotulos.size} rótulo(s) · ${r.passadas} passada(s) de layout`);
+	linhas.push(`	${msg().mapaTotal(r.bytes.length, r.rotulos.size, r.passadas)}`);
 	return linhas.join('\n');
 }

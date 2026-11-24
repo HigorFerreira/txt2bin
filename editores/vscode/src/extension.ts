@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
-import { ehErroFonte, formatar, mapa, montar, FORMATOS, type Config, type Formato, type Resultado } from '../../../src/index.ts';
+import { definirIdioma, ehErroFonte, formatar, idioma, mapa, montar, FORMATOS, type Config, type Formato, type Resultado } from '../../../src/index.ts';
 
 const LINGUAGEM = 'txt2bin';
 const resultados = new Map<string, Resultado>();          // último resultado válido por documento
@@ -10,6 +10,7 @@ let saida: vscode.OutputChannel;
 const mudouHints = new vscode.EventEmitter<void>();
 
 const cfg = () => vscode.workspace.getConfiguration('txt2bin');
+const emPortugues = () => idioma() === 'pt';
 
 function lerConfig(doc: vscode.TextDocument): Config | undefined {
   if (doc.uri.scheme !== 'file') return undefined;
@@ -66,6 +67,8 @@ function linhaDoRotulo(doc: vscode.TextDocument, nome: string): number {
 // Ativação
 // ---------------------------------------------------------------------------
 export function activate(ctx: vscode.ExtensionContext) {
+  // mensagens do conversor no idioma do VS Code, não no do sistema
+  definirIdioma(vscode.env.language.toLowerCase().startsWith('pt') ? 'pt' : 'en');
   diagnosticos = vscode.languages.createDiagnosticCollection('txt2bin');
   saida = vscode.window.createOutputChannel('txt2bin');
   const sel: vscode.DocumentSelector = { language: LINGUAGEM };
@@ -95,7 +98,9 @@ export function activate(ctx: vscode.ExtensionContext) {
         const md = new vscode.MarkdownString();
         md.appendMarkdown(`**<<${it.secao.cabecalho}**\n\n`);
         md.appendMarkdown(`offset \`${it.offset}\` · \`${hex(it.offset)}\`  \n`);
-        if (it.tipo !== 'rotulo') md.appendMarkdown(`tamanho \`${it.tamanho}\` byte(s) · termina em \`${hex(it.offset + it.tamanho)}\``);
+        if (it.tipo !== 'rotulo') md.appendMarkdown(emPortugues()
+          ? `tamanho \`${it.tamanho}\` byte(s) · termina em \`${hex(it.offset + it.tamanho)}\``
+          : `size \`${it.tamanho}\` byte(s) · ends at \`${hex(it.offset + it.tamanho)}\``);
         if (it.bytes && it.tipo === 'asm' && it.bytes.length <= 64)
           md.appendCodeblock(Buffer.from(it.bytes).toString('hex').replace(/(..)/g, '$1 ').trim(), 'text');
         return new vscode.Hover(md);
@@ -159,8 +164,8 @@ export function activate(ctx: vscode.ExtensionContext) {
       const ed = vscode.window.activeTextEditor;
       if (!ed || ed.document.languageId !== LINGUAGEM) return;
       const r = analisar(ed.document);
-      if (!r) { vscode.window.showErrorMessage('txt2bin: corrija os erros antes de gerar.'); return; }
-      const formato = (await vscode.window.showQuickPick([...FORMATOS], { placeHolder: 'Formato de saída' })) as Formato | undefined;
+      if (!r) { vscode.window.showErrorMessage(emPortugues() ? 'txt2bin: corrija os erros antes de gerar.' : 'txt2bin: fix the errors before generating.'); return; }
+      const formato = (await vscode.window.showQuickPick([...FORMATOS], { placeHolder: emPortugues() ? 'Formato de saída' : 'Output format' })) as Formato | undefined;
       if (!formato) return;
       const ext = { bin: '.bin', hex: '.hex.txt', base64: '.b64', base64url: '.b64', datauri: '.datauri.txt', ihex: '.hex' }[formato];
       const base = ed.document.uri.scheme === 'file' ? ed.document.uri.fsPath.replace(/\.ttb$/i, '') : 'saida';

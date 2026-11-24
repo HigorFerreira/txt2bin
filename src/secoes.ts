@@ -1,4 +1,5 @@
 import { ErroFonte } from './erros.ts';
+import { msg } from './mensagens.ts';
 
 /** Uma seção bruta: a linha "<<..." e o texto até a próxima diretiva. */
 export interface SecaoBruta {
@@ -26,7 +27,7 @@ export function separarSecoes(fonte: string): SecaoBruta[] {
 			secoes.push(atual);
 		} else {
 			const k = corpo.findIndex(l => l.trim() !== '');
-			if (k >= 0) throw new ErroFonte(k + 1, 'conteúdo antes da primeira diretiva "<<"');
+			if (k >= 0) throw new ErroFonte(k + 1, msg().conteudoAntes());
 		}
 	};
 
@@ -53,10 +54,10 @@ export interface Cabecalho {
 
 export function lerCabecalho(s: SecaoBruta): Cabecalho {
 	const c = s.cabecalho;
-	if (c === '') throw new ErroFonte(s.linha, 'diretiva vazia');
+	if (c === '') throw new ErroFonte(s.linha, msg().diretivaVazia());
 	if (c.startsWith('#')) return { nome: '#', bigEndian: false, args: c.slice(1) };
 	if (c.startsWith('@')) return { nome: '@', param: c.slice(1).trim(), bigEndian: false, args: '' };
 	const m = /^([A-Za-z_][A-Za-z0-9_]*)(?:\(([^)]*)\))?(\+)?(?:\s+(.*))?$/.exec(c);
-	if (!m) throw new ErroFonte(s.linha, `cabeçalho inválido "<<${c}"`);
+	if (!m) throw new ErroFonte(s.linha, msg().cabecalhoInvalido(c));
 	return { nome: m[1]!.toLowerCase(), param: m[2]?.trim(), bigEndian: m[3] === '+', args: (m[4] ?? '').trim() };
 }

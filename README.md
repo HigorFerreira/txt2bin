@@ -199,7 +199,7 @@ Assembly sections are assembled with **LLVM** (`llvm-mc`, plus `ld.lld` when rel
 | Debian/Ubuntu | `apt install llvm lld` |
 | Windows | `winget install LLVM.LLVM` |
 
-Supported out of the box: **x86** (16, 32, 64-bit; Intel or AT&T syntax), **ARM** (A32, Thumb-2, Cortex-M0/M3/M4/M33, AArch64, Apple Silicon), **AVR** (Arduino), **RISC-V** (32/64), **MIPS**, **PowerPC**, **SPARC**, **IBM Z**, **MSP430**, **Xtensa** (ESP32), **LoongArch**, **Hexagon**, **eBPF**, and any other LLVM target via `triple=`. Run `txt2bin --arquiteturas` for the full list with aliases (`intel_x86`, `apple_silicon`, `arduino`…).
+Supported out of the box: **x86** (16, 32, 64-bit; Intel or AT&T syntax), **ARM** (A32, Thumb-2, Cortex-M0/M3/M4/M33, AArch64, Apple Silicon), **AVR** (Arduino), **RISC-V** (32/64), **MIPS**, **PowerPC**, **SPARC**, **IBM Z**, **MSP430**, **Xtensa** (ESP32), **LoongArch**, **Hexagon**, **eBPF**, and any other LLVM target via `triple=`. Run `txt2bin --architectures` for the full list with aliases (`intel_x86`, `apple_silicon`, `arduino`…).
 
 Options: `org=` (load address, defaults to the section's offset), `mcpu=` (e.g. `atmega328p`, `cortex-m7`, `apple-m3`), `mattr=` (e.g. `+avx2`), `triple=`, `syntax=intel|att`.
 
@@ -215,7 +215,8 @@ txt2bin input.ttb [output] [options]
   --mime TYPE         MIME type for datauri
   --map               print a map of sections and labels
   --config FILE       custom assembler backends
-  --arquiteturas      list assembly architectures and where LLVM was found
+  --architectures     list assembly architectures and where LLVM was found
+  --lang en|pt        message language (default: your system's)
 ```
 
 `ihex` is Intel HEX, what `avrdude` and most microcontroller programmers expect. `datauri` gives you a `data:` URL ready to paste into HTML or a glTF `uri`.
@@ -223,16 +224,20 @@ txt2bin input.ttb [output] [options]
 ### JavaScript / TypeScript API
 
 ```ts
-import { montar, formatar, mapa } from 'txt2bin';
+import { assemble, format, map, isSourceError } from 'txt2bin';
 
-const r = montar(source);          // assemble
-r.bytes;                           // Uint8Array
-r.rotulos.get('end');              // label offsets (bigint)
-formatar(r.bytes, 'ihex');         // any CLI output format (a string, or bytes for 'bin')
-console.log(mapa(r));              // the --map table
+try {
+  const r = assemble(source);      // { bytes, rotulos, ... }
+  r.bytes;                         // Uint8Array
+  r.rotulos.get('end');            // label offsets (bigint)
+  format(r.bytes, 'ihex');         // any CLI output format (a string, or bytes for 'bin')
+  console.log(map(r));             // the --map table
+} catch (e) {
+  if (isSourceError(e)) console.error(`line ${e.linha}: ${e.message}`);
+}
 ```
 
-Errors are thrown as `ErroFonte` with a `.linha` (line number).
+Messages follow your system language (English or Portuguese); call `setLanguage('en')` to pin it.
 
 ## Editor support
 
@@ -247,7 +252,7 @@ The grammar is standard TextMate, so it can be reused by other editors and highl
 
 ## Good to know
 
-- **The project speaks Portuguese.** It was created in Brazil. Directives are English (`utf8`, `uint32`, `align`…), but error messages, the `--map` table, the `--arquiteturas` flag and API names (`montar` = assemble, `formatar` = format, `mapa` = map, `rotulos` = labels) are in Portuguese. The full language specification is [`docs/especificacao.md`](docs/especificacao.md), and [`CONTEXTO.md`](CONTEXTO.md) explains every design decision.
+- **Bilingual.** txt2bin was created in Brazil. Messages, help and the `--map` table come in English or Portuguese, following your system language (or `--lang` / `TXT2BIN_LANG`). The API has English names (`assemble`, `format`, `map`) next to the original Portuguese ones (`montar`, `formatar`, `mapa`); result fields such as `rotulos` (labels) are still Portuguese. The full language specification is in Portuguese in [`docs/especificacao.md`](docs/especificacao.md), and [`CONTEXTO.md`](CONTEXTO.md) explains every design decision.
 - **Assembly needs LLVM**; everything else runs anywhere Node 18+ or Bun runs.
 
 ## Development

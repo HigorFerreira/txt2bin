@@ -20,6 +20,7 @@ export class InlayHint { paddingLeft?: boolean; constructor(public position: Pos
 export class DocumentSymbol { constructor(public name: string, public detail: string, public kind: number, public range: Range, public selectionRange: Range) {} }
 export class EventEmitter<T> { ouvintes: ((x: T) => void)[] = []; event = (f: (x: T) => void) => this.ouvintes.push(f); fire(x: T) { this.ouvintes.forEach(f => f(x)); } }
 export const DiagnosticSeverity = { Error: 0 };
+export const env = { language: 'pt-br' };
 export const InlayHintKind = { Type: 1 };
 export const SymbolKind = { Key: 19, Field: 7 };
 export const Uri = { file: (fsPath: string) => ({ fsPath }) };

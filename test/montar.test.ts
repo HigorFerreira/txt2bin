@@ -3,6 +3,10 @@ import { avaliar } from '../src/expr.ts';
 import { paraFloat16 } from '../src/codificar.ts';
 import { intelHex } from '../src/saida.ts';
 import { montar, ErroFonte } from '../src/index.ts';
+import { definirIdioma } from '../src/mensagens.ts';
+
+// os testes conferem o texto das mensagens em português
+definirIdioma('pt');
 
 const hex = (fonte: string) => Buffer.from(montar(fonte).bytes).toString('hex');
 const erro = (fonte: string) => {

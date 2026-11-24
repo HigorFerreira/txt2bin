@@ -1,4 +1,5 @@
 import type { Valor } from './expr.ts';
+import { msg } from './mensagens.ts';
 
 // ---------------------------------------------------------------------------
 // Tipos numéricos
@@ -80,13 +81,13 @@ export function decodificarTexto(corpo: string): string {
 			case '<': out += '<'; break;
 			case 'u': {
 				const m = /^\{([0-9a-fA-F]{1,6})\}/.exec(cru.slice(i + 1));
-				if (!m) throw new Error('escape \\u inválido, use \\u{HHHH}');
+				if (!m) throw new Error(msg().escapeU());
 				out += String.fromCodePoint(parseInt(m[1]!, 16));
 				i += m[0].length;
 				break;
 			}
-			case undefined: throw new Error('"\\" no fim do texto');
-			default: throw new Error(`escape desconhecido "\\${e}"`);
+			case undefined: throw new Error(msg().barraNoFim());
+			default: throw new Error(msg().escapeDesconhecido(e));
 		}
 	}
 	return out;
@@ -106,8 +107,8 @@ const semComentarios = (corpo: string) => corpo.split('\n').map(l => l.replace(/
 
 export function hex(corpo: string): Uint8Array {
 	const h = semComentarios(corpo).replace(/\s+/g, '');
-	if (!/^[0-9a-fA-F]*$/.test(h)) throw new Error('caractere não hexadecimal');
-	if (h.length % 2) throw new Error(`número ímpar de dígitos hex (${h.length})`);
+	if (!/^[0-9a-fA-F]*$/.test(h)) throw new Error(msg().naoHex());
+	if (h.length % 2) throw new Error(msg().hexImpar(h.length));
 	return Uint8Array.from(Buffer.from(h, 'hex'));
 }
 
@@ -116,11 +117,11 @@ export function base64(corpo: string, url: boolean): Uint8Array {
 	const alfabeto = url ? /^[A-Za-z0-9\-_]*={0,2}$/ : /^[A-Za-z0-9+/]*={0,2}$/;
 	if (!alfabeto.test(s)) {
 		const errado = [...s].find(c => !(url ? /[A-Za-z0-9\-_=]/ : /[A-Za-z0-9+/=]/).test(c));
-		throw new Error(`caractere "${errado}" não pertence ao alfabeto ${url ? 'base64url' : 'base64'}`
-			+ (url ? '' : errado === '-' || errado === '_' ? ' (isso é base64url? use <<base64url)' : ''));
+		throw new Error(msg().foraDoAlfabeto(errado!, url ? 'base64url' : 'base64')
+			+ (url ? '' : errado === '-' || errado === '_' ? msg().dicaBase64url() : ''));
 	}
 	const dados = s.replace(/=+$/, '');
-	if (dados.length % 4 === 1) throw new Error('comprimento base64 inválido');
-	if (s.includes('=') && s.length % 4 !== 0) throw new Error('preenchimento "=" incorreto');
+	if (dados.length % 4 === 1) throw new Error(msg().base64Comprimento());
+	if (s.includes('=') && s.length % 4 !== 0) throw new Error(msg().base64Preenchimento());
 	return Uint8Array.from(Buffer.from(dados, url ? 'base64url' : 'base64'));
 }

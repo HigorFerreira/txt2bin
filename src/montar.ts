@@ -2,6 +2,7 @@ import { montar as montarAsm, ErroAsm, type Config } from './asm/montador.ts';
 import { base64, decodificarTexto, hex, TIPOS, utf16, type TipoNum } from './codificar.ts';
 import { ehErroFonte, ErroFonte } from './erros.ts';
 import { avaliar, ErroExpr, rotulosCitados, separarTermos, type Contexto, type Termo, type Valor } from './expr.ts';
+import { msg } from './mensagens.ts';
 import { lerCabecalho, separarSecoes, type Cabecalho, type SecaoBruta } from './secoes.ts';
 
 export interface Opcoes {
@@ -59,7 +60,7 @@ function argsOpcoes(args: string, linha: number): { posicionais: Termo[]; opcoes
 function lerByte(s: string | undefined, linha: number): number {
 	if (s === undefined) return 0;
 	const v = parseInt(s, 16);
-	if (!/^[0-9a-fA-F]{1,2}$/.test(s)) throw new ErroFonte(linha, `byte de preenchimento deve ser hex (00–FF), recebeu "${s}"`);
+	if (!/^[0-9a-fA-F]{1,2}$/.test(s)) throw new ErroFonte(linha, msg().bytePreenchimento(s));
 	return v;
 }
 
@@ -72,15 +73,15 @@ function interpretar(secoes: SecaoBruta[]): Item[] {
 		const base = { secao: s, cab, offset: 0, tamanho: 0 };
 		const L = s.linha;
 		if (cab.bigEndian && !PODE_BIG_ENDIAN.has(cab.nome)) {
-			throw new ErroFonte(L, `"+" (big-endian) não se aplica a <<${cab.nome}: só números de mais de um byte e utf16 têm ordem de bytes`);
+			throw new ErroFonte(L, msg().bigEndianNaoSeAplica(cab.nome));
 		}
-		const semArgs = () => { if (cab.args) throw new ErroFonte(L, `<<${cab.nome} não aceita argumentos ("${cab.args}")`); };
-		const semCorpo = () => { if (s.corpo.trim()) throw new ErroFonte(s.linhaCorpo, `<<${cab.nome} não tem conteúdo`); };
+		const semArgs = () => { if (cab.args) throw new ErroFonte(L, msg().semArgumentos(cab.nome, cab.args)); };
+		const semCorpo = () => { if (s.corpo.trim()) throw new ErroFonte(s.linhaCorpo, msg().semConteudo(cab.nome)); };
 
 		switch (cab.nome) {
 			case '#': return { ...base, tipo: 'comentario' } as Item;
 			case '@': {
-				if (!cab.param || !/^[A-Za-z_][\w.]*$/.test(cab.param)) throw new ErroFonte(L, `nome de rótulo inválido "${cab.param}"`);
+				if (!cab.param || !/^[A-Za-z_][\w.]*$/.test(cab.param)) throw new ErroFonte(L, msg().nomeRotuloInvalido(String(cab.param)));
 				semCorpo();
 				return { ...base, tipo: 'rotulo', rotulo: cab.param } as Item;
 			}
@@ -94,13 +95,13 @@ function interpretar(secoes: SecaoBruta[]): Item[] {
 				semCorpo();
 				const { posicionais, opcoes } = argsOpcoes(cab.args, L);
 				if (Object.keys(opcoes).length || posicionais.length < 1 || posicionais.length > 2)
-					throw new ErroFonte(L, `uso: <<${cab.nome} N [HH]`);
+					throw new ErroFonte(L, msg().usoAlignFill(cab.nome));
 				return { ...base, tipo: cab.nome, expr: posicionais[0], preenchimento: lerByte(posicionais[1]?.src, L) } as Item;
 			}
 			case 'assembly': {
-				if (!cab.param) throw new ErroFonte(L, 'informe a arquitetura: <<assembly(x86_64), <<assembly(avr)…');
+				if (!cab.param) throw new ErroFonte(L, msg().informeArquitetura());
 				const { posicionais, opcoes } = argsOpcoes(cab.args, L);
-				if (posicionais.length) throw new ErroFonte(L, `argumento inesperado "${posicionais[0]!.src}" (use chave=valor)`);
+				if (posicionais.length) throw new ErroFonte(L, msg().argumentoInesperado(posicionais[0]!.src));
 				const org = opcoes.org !== undefined ? { src: opcoes.org, linha: L } : undefined;
 				delete opcoes.org;
 				return { ...base, tipo: 'asm', asm: { arquitetura: cab.param, opcoes, org } } as Item;
@@ -112,7 +113,7 @@ function interpretar(secoes: SecaoBruta[]): Item[] {
 			const tipo = TIPOS[cab.nome]!;
 			return { ...base, tipo: 'numeros', num: { tipo, termos }, tamanho: termos.length * tipo.bytes } as Item;
 		}
-		throw new ErroFonte(L, `diretiva desconhecida "<<${cab.nome}"`);
+		throw new ErroFonte(L, msg().diretivaDesconhecida(cab.nome));
 	});
 }
 
@@ -126,7 +127,7 @@ function interpretar(secoes: SecaoBruta[]): Item[] {
 function inteiroDe(v: Valor, onde: string): bigint {
 	if (typeof v === 'bigint') return v;
 	if (Number.isInteger(v)) return BigInt(v);
-	throw new ErroExpr(`${onde} precisa ser inteiro (deu ${v})`);
+	throw new ErroExpr(msg().precisaSerInteiro(onde, String(v)));
 }
 
 function substituirExpressoes(codigo: string, linhaCorpo: number, ctx: Contexto): string {
@@ -147,13 +148,13 @@ function dimensionar(itens: Item[], rotulos: Map<string, bigint>, opcoes: Opcoes
 			case 'rotulo': novos.set(it.rotulo!, BigInt(off)); it.tamanho = 0; break;
 			case 'bytes': it.tamanho = it.bytes!.length; break;
 			case 'align': {
-				const n = naLinha(it.secao.linha, () => inteiroDe(avaliar(it.expr!.src, ctx), 'o alinhamento'));
-				if (n < 1n) throw new ErroFonte(it.secao.linha, 'o alinhamento deve ser ≥ 1');
+				const n = naLinha(it.secao.linha, () => inteiroDe(avaliar(it.expr!.src, ctx), msg().oAlinhamento()));
+				if (n < 1n) throw new ErroFonte(it.secao.linha, msg().alinhamentoMinimo());
 				it.tamanho = Number((n - (BigInt(off) % n)) % n);
 				break;
 			}
 			case 'fill': {
-				const n = naLinha(it.secao.linha, () => inteiroDe(avaliar(it.expr!.src, ctx), 'a quantidade do fill'));
+				const n = naLinha(it.secao.linha, () => inteiroDe(avaliar(it.expr!.src, ctx), msg().aQuantidadeDoFill()));
 				// durante as primeiras passadas os rótulos são provisórios e o valor pode ser negativo
 				it.tamanho = Number(n < 0n ? 0n : n);
 				break;
@@ -194,11 +195,11 @@ export function montar(fonte: string, opcoes: Opcoes = {}): Resultado {
 	// Rótulos: nomes únicos e todas as referências conhecidas
 	const definidos = new Map<string, number>();
 	for (const it of itens) if (it.tipo === 'rotulo') {
-		if (definidos.has(it.rotulo!)) throw new ErroFonte(it.secao.linha, `rótulo "${it.rotulo}" já definido na linha ${definidos.get(it.rotulo!)}`);
+		if (definidos.has(it.rotulo!)) throw new ErroFonte(it.secao.linha, msg().rotuloDuplicado(it.rotulo!, definidos.get(it.rotulo!)!));
 		definidos.set(it.rotulo!, it.secao.linha);
 	}
 	const checar = (src: string, linha: number) => {
-		for (const r of rotulosCitados(src)) if (!definidos.has(r)) throw new ErroFonte(linha, `rótulo indefinido "$${r}"`);
+		for (const r of rotulosCitados(src)) if (!definidos.has(r)) throw new ErroFonte(linha, msg().rotuloIndefinido(r));
 	};
 	for (const it of itens) {
 		it.num?.termos.forEach(t => checar(t.src, t.linha));
@@ -216,14 +217,14 @@ export function montar(fonte: string, opcoes: Opcoes = {}): Resultado {
 		passadas++;
 		const novos = dimensionar(itens, rotulos, opcoes);
 		if (iguais(novos, rotulos)) break;
-		if (passadas >= max) throw new ErroFonte(1, `o layout não estabilizou em ${max} passadas (tamanhos que dependem uns dos outros em ciclo?)`);
+		if (passadas >= max) throw new ErroFonte(1, msg().naoEstabilizou(max));
 		rotulos = novos;
 	}
 
 	// Valores finais de fill (agora não podem ser negativos)
 	for (const it of itens) if (it.tipo === 'fill') {
-		const n = naLinha(it.secao.linha, () => inteiroDe(avaliar(it.expr!.src, { rotulos, aqui: BigInt(it.offset) }), 'a quantidade do fill'));
-		if (n < 0n) throw new ErroFonte(it.secao.linha, `fill com quantidade negativa (${n}): o conteúdo anterior já passou do limite`);
+		const n = naLinha(it.secao.linha, () => inteiroDe(avaliar(it.expr!.src, { rotulos, aqui: BigInt(it.offset) }), msg().aQuantidadeDoFill()));
+		if (n < 0n) throw new ErroFonte(it.secao.linha, msg().fillNegativo(String(n)));
 	}
 
 	// Emissão
@@ -240,8 +241,8 @@ export function montar(fonte: string, opcoes: Opcoes = {}): Resultado {
 			naLinha(t.linha, () => {
 				let v = avaliar(t.src, { rotulos, aqui: BigInt(off) });
 				if (tipo.inteiro) {
-					v = inteiroDe(v, `valor em <<${it.cab.nome}`);
-					if (v < tipo.min! || v > tipo.max!) throw new ErroExpr(`${t.src} = ${v} está fora do intervalo de ${it.cab.nome} (${tipo.min}…${tipo.max})`);
+					v = inteiroDe(v, msg().valorEm(it.cab.nome));
+					if (v < tipo.min! || v > tipo.max!) throw new ErroExpr(msg().foraDoIntervalo(t.src, String(v), it.cab.nome, String(tipo.min), String(tipo.max)));
 				}
 				tipo.escrever(dv, off, v, !it.cab.bigEndian);
 			});
