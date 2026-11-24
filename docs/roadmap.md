@@ -132,7 +132,7 @@ crc32($ini_crc, $fim_dados)
 
 ## 3. Extensão do VS Code
 
-- [ ] **`publisher` do Marketplace** (decisão do Higor; hoje é `seu-publisher`) e publicação no Marketplace e no Open VSX.
+- [ ] **`publisher` do Marketplace** (decisão do Higor; hoje é `seu-publisher`) e publicação no Marketplace e no Open VSX. Roteiro: `docs/publicar-extensao.typ`.
 - [ ] Autocompletar `$rótulos`, nomes de diretivas e de arquiteturas.
 - [ ] Hover sobre bytes `hex` mostrando o offset de cada byte.
 - [ ] `<<utf8 json` (ou outra anotação) para colorir JSON embutido.
