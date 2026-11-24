@@ -76,15 +76,13 @@ O Marketplace mostra um ícone na busca e na página. Regras do `vsce`:
 "icon": "icone.png"
 ```
 
-Sem ícone, a extensão aparece com um quadrado genérico. Não é obrigatório, mas faz muita diferença na busca.
+*Já feito:* o ícone é a letra T se desfazendo em pixels (texto que vira binário), desenhado em Typst em `editores/vscode/icones/icone.typ`. O mesmo arquivo gera o PNG da loja e o SVG usado como ícone dos arquivos `.ttb` (campo `icon` em `contributes.languages`). Os dois estão ligados no `package.json`; o `.typ` fica fora do pacote pelo `.vscodeignore`. Para regenerar:
 
-#experimente[
-  Dá para desenhar o ícone no próprio Typst e exportar como PNG:
-  ```sh
-  typst compile --format png --ppi 144 icone.typ icone.png
-  ```
-  Com `set page(width: 128pt, height: 128pt, margin: 0pt)` e `--ppi 144`, a imagem sai com 256 × 256 px (128 pt são 128/72 polegadas; × 144 = 256). Confira com `file icone.png`.
-]
+```sh
+cd editores/vscode/icones
+typst compile --format png --ppi 144 icone.typ icone.png
+typst compile --format svg --input variante=arquivo icone.typ arquivo-ttb.svg
+```
 
 == A licença
 
@@ -319,7 +317,7 @@ Se o envio for pelo CI, o token vai como segredo do repositório (`OVSX_PAT`) e 
 *Preparação* (qualquer rede):
 - ☐ ID do publisher escolhido
 - ☐ `publisher` trocado no `package.json`
-- ☐ ícone PNG ≥ 128 × 128 e campo `icon`
+- ☑ ícone PNG ≥ 128 × 128 e campo `icon` (feito)
 - ☐ `LICENSE` copiada para `editores/vscode/`
 - ☐ `--skip-license` e `--allow-missing-repository` removidos do script
 - ☐ `description` e README da extensão em inglês (ou bilíngues)

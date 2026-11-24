@@ -5,6 +5,7 @@
   "version": "0.2.1",
   "publisher": "seu-publisher",
   "license": "MIT",
+  "icon": "icones/icone.png",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/HigorFerreira/txt2bin.git",
@@ -22,7 +23,11 @@
       "id": "txt2bin",
       "aliases": ["txt2bin", "TTB"],
       "extensions": [".ttb"],
-      "configuration": "./language-configuration.json"
+      "configuration": "./language-configuration.json",
+      "icon": {
+        "light": "./icones/arquivo-ttb.svg",
+        "dark": "./icones/arquivo-ttb.svg"
+      }
     }],
     "grammars": [{
       "language": "txt2bin",
