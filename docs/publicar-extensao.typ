@@ -76,12 +76,13 @@ O Marketplace mostra um ícone na busca e na página. Regras do `vsce`:
 "icon": "icone.png"
 ```
 
-*Já feito:* o ícone é a letra T se desfazendo em pixels (texto que vira binário), desenhado em Typst em `editores/vscode/icones/icone.typ`. O mesmo arquivo gera o PNG da loja e o SVG usado como ícone dos arquivos `.ttb` (campo `icon` em `contributes.languages`). Os dois estão ligados no `package.json`; o `.typ` fica fora do pacote pelo `.vscodeignore`. Para regenerar:
+*Já feito:* na loja, a letra T se desfazendo em pixels (texto que vira binário); nos arquivos `.ttb`, o `<<` que abre cada seção, em ciano, com uma versão para tema escuro e outra para tema claro. Tudo é desenhado em Typst em `editores/vscode/icones/icone.typ` e já está ligado no `package.json` (`icon` e `contributes.languages[].icon`); o `.typ` fica fora do pacote pelo `.vscodeignore`. Para regenerar:
 
 ```sh
 cd editores/vscode/icones
 typst compile --format png --ppi 144 icone.typ icone.png
 typst compile --format svg --input variante=arquivo icone.typ arquivo-ttb.svg
+typst compile --format svg --input variante=arquivo-claro icone.typ arquivo-ttb-claro.svg
 ```
 
 == A licença

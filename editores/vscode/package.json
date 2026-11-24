@@ -25,7 +25,7 @@
       "extensions": [".ttb"],
       "configuration": "./language-configuration.json",
       "icon": {
-        "light": "./icones/arquivo-ttb.svg",
+        "light": "./icones/arquivo-ttb-claro.svg",
         "dark": "./icones/arquivo-ttb.svg"
       }
     }],

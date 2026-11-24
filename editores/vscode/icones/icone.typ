@@ -1,7 +1,10 @@
-// Ícone do txt2bin: a letra T (texto) se desfazendo em pixels (bits).
+// Ícones do txt2bin.
+//   Loja: a letra T (texto) se desfazendo em pixels (bits), num quadrado com gradiente.
+//   Arquivos .ttb: o "<<" que abre cada seção, um glifo de uma cor só, como os ícones do VS Code.
 // Gerar (dentro de editores/vscode/icones/):
-//   typst compile --format png --ppi 144 icone.typ icone.png                               (256 × 256, Marketplace)
-//   typst compile --format svg --input variante=arquivo icone.typ arquivo-ttb.svg          (ícone dos .ttb)
+//   typst compile --format png --ppi 144 icone.typ icone.png                                    (256 × 256, Marketplace)
+//   typst compile --format svg --input variante=arquivo icone.typ arquivo-ttb.svg               (tema escuro)
+//   typst compile --format svg --input variante=arquivo-claro icone.typ arquivo-ttb-claro.svg   (tema claro)
 
 #let variante = sys.inputs.at("variante", default: "loja")
 #set page(width: 128pt, height: 128pt, margin: 0pt, fill: none)
@@ -33,9 +36,22 @@
   px(x0 + 2 * g - 2pt, oy + 26pt + 2 * g + 6pt, cor, alfa: 30%, escala: 0.5)
 }
 
+// "<<" desenhado numa grade 16 × 16 (1 unidade = 1 pixel quando o ícone tem 16 px)
+#let chevrons(cor) = {
+  let u = 128pt / 16
+  let traco(..pts) = {
+    let p = pts.pos().map(((x, y)) => (x * u, y * u))
+    place(curve(stroke: (paint: cor, thickness: 2.6 * u, cap: "butt", join: "miter"),
+      curve.move(p.first()), ..p.slice(1).map(q => curve.line(q))))
+  }
+  traco((7.2, 2), (2, 8), (7.2, 14))
+  traco((14.6, 2), (9.4, 8), (14.6, 14))
+}
+
 #if variante == "arquivo" {
-  // ícone de arquivo: só o símbolo, sem fundo, com a cor do gradiente
-  scale(112%, origin: center + horizon, box(width: 128pt, height: 128pt, letra(rgb("#4f8fe8"))))
+  chevrons(rgb("#22b8cf"))
+} else if variante == "arquivo-claro" {
+  chevrons(rgb("#0e8a9e"))
 } else {
   place(rect(width: 128pt, height: 128pt, radius: 28pt, fill: fundo))
   // brilho sutil no alto
