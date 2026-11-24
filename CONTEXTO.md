@@ -2,7 +2,7 @@
 
 > Documento de contexto para pessoas e agentes de IA que trabalham neste repositório.
 > Conta **de onde o projeto veio**, **o que já foi decidido e por quê**, **o que foi verificado**
-> e **o que está em aberto**. A especificação da linguagem está no `README.md`; aqui fica o
+> e **o que está em aberto**. A especificação da linguagem está em `docs/especificacao.md`; aqui fica o
 > raciocínio por trás dela. Ao mudar uma decisão registrada aqui, atualize este arquivo.
 
 - Autor: Higor (Goiânia, GO). Idioma do projeto: **português do Brasil** (código, mensagens de erro, documentação).
@@ -80,7 +80,8 @@ Uma linguagem de texto (arquivos `.ttb`) e um conversor que gera o binário. O m
 | testes | `test/` | 47 testes (`bun test`); os de assembly são pulados sem LLVM e o do NASM sem `nasm` |
 | exemplos | `exemplos/*.ttb` | glTF, MIDI, setor de boot x86, Arduino (AVR), expressões; os testes conferem o SHA-256 de cada um |
 | extensão VS Code | `editores/vscode/` | gramática TextMate + diagnósticos + hover + offsets; `.vsix` gerado com `bun run package` |
-| especificação | `README.md` | é a referência da linguagem |
+| especificação | `docs/especificacao.md` | é a referência da linguagem (português) |
+| apresentação | `README.md` | em inglês, para GitHub e npm: por que usar, tour, referência compacta |
 
 Ambiente onde tudo foi desenvolvido e testado: Bun 1.4, LLVM 18.1 (Ubuntu), `ld.lld`, NASM, Node.
 
@@ -222,7 +223,7 @@ Casos verificados com bytes conferidos:
 - **Como é verificada:** `bun test` em `editores/vscode/` roda 25 testes. São 17 de gramática, com o motor de realce do VS Code (`vscode-textmate` + `vscode-oniguruma`), incluindo "nenhum exemplo tem trecho inválido", e 8 da lógica da extensão, com uma imitação da API `vscode` (`test/vscode-falso.ts` + `mock.module`). `bun run previa` gera uma prévia colorida em HTML. **A extensão nunca foi aberta num VS Code de verdade durante a conversa.**
 - **Documentação didática completa:** `editores/vscode/SOBRE-A-EXTENSAO.md` (como funciona, regra por regra da gramática, testes, receitas, publicação).
 - **Guia em Typst:** `docs/extensao-vscode/` (`main.typ` + um arquivo por capítulo em `capitulos/`). Conta a história desde o armário e explica a extensão usando o `midi.ttb` como exemplo do começo ao fim. Compile com `typst compile docs/extensao-vscode/main.typ docs/extensao-vscode.pdf` (Typst ≥ 0.15; nesta máquina, instalado com `cargo install --locked typst-cli`). **O PDF não é versionado** (`docs/*.pdf` está no `.gitignore`): só os fontes `.typ` entram no git. Os números citados (offsets, tokens, dump) saíram do conversor e do motor de realce; se mudarem, atualize o guia.
-- **Pendências:** trocar `publisher` (`seu-publisher`) e `license` (`UNLICENSED`) no `package.json` antes de publicar no Marketplace.
+- **Pendências:** trocar `publisher` (`seu-publisher`) no `package.json` antes de publicar no Marketplace. A licença (MIT) e o `repository` já estão preenchidos; as opções `--skip-license` e `--allow-missing-repository` continuam no script `package` porque não há `LICENSE` dentro de `editores/vscode/` (o `vsce` procura lá).
 
 ---
 
@@ -262,9 +263,11 @@ Casos verificados com bytes conferidos:
 Decisões que são do Higor:
 
 - [ ] Nome definitivo do pacote no npm (`txt2bin` estava livre em 24/11/2026).
-- [ ] Licença (o pacote e a extensão ainda não têm uma).
+- [x] Licença: **MIT** (24/11), arquivo `LICENSE` na raiz, valendo para o pacote e a extensão.
+- [x] Repositório: https://github.com/HigorFerreira/txt2bin (`repository`, `homepage` e `bugs` no `package.json`).
 - [ ] `publisher` do VS Code Marketplace.
-- [ ] README em inglês para o npm (a especificação está em português).
+- [x] README em inglês para o npm (24/11). A especificação completa continua em português em `docs/especificacao.md`.
+- [ ] Mensagens de erro, `--map`, `--arquiteturas` e nomes da API estão em português; o README em inglês avisa isso. Avaliar internacionalizar antes de divulgar fora do Brasil.
 
 Ideias levantadas na conversa, ainda não implementadas:
 
@@ -282,7 +285,7 @@ Ideias levantadas na conversa, ainda não implementadas:
 
 **Antes de mudar algo:**
 
-1. Leia o `README.md` (especificação) e as seções 3 e 8 deste arquivo. Várias escolhas que parecem estranhas são intencionais (coluna 0, parênteses obrigatórios, `+` proibido em bytes, `ehErroFonte`).
+1. Leia o `docs/especificacao.md` (especificação) e as seções 3 e 8 deste arquivo. Várias escolhas que parecem estranhas são intencionais (coluna 0, parênteses obrigatórios, `+` proibido em bytes, `ehErroFonte`).
 2. Rode `bun test` e `bun run typecheck` antes e depois. Os testes de assembly exigem `llvm-mc` e `ld.lld` (`txt2bin --arquiteturas` mostra se foram encontrados).
 3. **Os exemplos têm SHA-256 fixado em `test/exemplos.test.ts`.** Se uma mudança alterar um exemplo, confirme que a mudança é intencional antes de atualizar o hash. O `gltf-face.ttb` precisa continuar idêntico ao gerado pela v1.
 
@@ -291,7 +294,7 @@ Ideias levantadas na conversa, ainda não implementadas:
 - Português em identificadores, mensagens e documentação. Mensagens de erro dizem **o que** está errado e, quando possível, **como corrigir** (ex.: "use parênteses", "isso é base64url?").
 - Todo erro ligado ao arquivo-fonte é `ErroFonte(linha, mensagem)`. Use `naLinha()` em `montar.ts` para envolver código que pode lançar.
 - Não use `instanceof ErroFonte`; use `ehErroFonte()`.
-- Uma nova diretiva precisa de: um caso em `interpretar()` (`montar.ts`), a regra de `+` (`PODE_BIG_ENDIAN`), uma linha na tabela do README, uma regra na gramática do VS Code e testes.
+- Uma nova diretiva precisa de: um caso em `interpretar()` (`montar.ts`), a regra de `+` (`PODE_BIG_ENDIAN`), uma linha na tabela de `docs/especificacao.md` e na do `README.md` (inglês), uma regra na gramática do VS Code e testes.
 - Uma nova arquitetura vai em `src/asm/arquiteturas.ts` (e apelidos em `APELIDOS`), com um teste em `test/assembly.test.ts` que confira os bytes.
 - A gramática do VS Code deve acompanhar a linguagem. Depois de mudá-la, confira a tokenização com `vscode-textmate` (já está em `devDependencies` da extensão).
 

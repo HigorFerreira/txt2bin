@@ -69,14 +69,14 @@ Siga o modelo dos provedores que já existem: `vscode.languages.registerXxxProvi
 
 == Publicação
 
-Antes de publicar, há decisões que são do Higor e campos a preencher no `package.json`:
+Antes de publicar, confira estes campos do `package.json`:
 
 #table(
   columns: (auto, 1fr),
   table.header[campo][situação],
   [`publisher`], [ainda é o marcador `seu-publisher`],
-  [`license`], [`UNLICENSED`; falta escolher a licença e criar o arquivo `LICENSE` (aí o `--skip-license` sai do script)],
-  [`repository`], [falta a URL do repositório público (aí o `--allow-missing-repository` sai)],
+  [`license`], [MIT. Copiar o `LICENSE` da raiz para `editores/vscode/` permite tirar o `--skip-license` do script],
+  [`repository`], [preenchido com o GitHub; o `--allow-missing-repository` pode sair],
   [`icon`], [opcional: um PNG de 128 × 128],
 )
 

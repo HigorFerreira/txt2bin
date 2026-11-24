@@ -80,7 +80,7 @@ O manifesto é um `package.json` comum de npm, com campos a mais que só o VS Co
   "displayName": "txt2bin",
   "version": "0.1.0",
   "publisher": "seu-publisher",
-  "license": "UNLICENSED",
+  "license": "MIT",
   "engines": { "vscode": "^1.85.0" },
   "categories": ["Programming Languages", "Linters"],
   "main": "./dist/extension.js",
@@ -89,7 +89,7 @@ O manifesto é um `package.json` comum de npm, com campos a mais que só o VS Co
 }
 ```
 
-- `name` e `publisher` juntos formam o identificador único da extensão. O `publisher` ainda é um marcador (`seu-publisher`) que precisa ser trocado antes de publicar, assim como a `license`.
+- `name` e `publisher` juntos formam o identificador único da extensão. O `publisher` ainda é um marcador (`seu-publisher`) que precisa ser trocado antes de publicar.
 - `engines.vscode` é a versão mínima do VS Code. Ela casa com a versão dos tipos usados no código (`@types/vscode` 1.85).
 - `main` aponta para o arquivo que o Extension Host executa. Note que é o arquivo *gerado* em `dist/`, não o `.ts`.
 

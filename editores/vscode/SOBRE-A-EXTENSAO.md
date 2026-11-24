@@ -115,7 +115,7 @@ Comandos (dentro de `editores/vscode/`):
   "description": "...",
   "version": "0.1.0",
   "publisher": "seu-publisher",       // PRECISA ser trocado antes de publicar (seção 13)
-  "license": "UNLICENSED",            // idem
+  "license": "MIT",
   "engines": { "vscode": "^1.85.0" }, // versão mínima do VS Code; casa com @types/vscode@1.85
   "categories": ["Programming Languages", "Linters"],
   "main": "./dist/extension.js",      // o arquivo que o Extension Host executa
@@ -788,8 +788,8 @@ O pacote final tem 8 arquivos e ~22 KB: o manifesto, o README, a configuração 
 | opção | por quê |
 |---|---|
 | `--no-dependencies` | não há dependências de execução (está tudo no bundle) |
-| `--skip-license` | ainda não há licença (pendência, seção 13) |
-| `--allow-missing-repository` | ainda não há repositório público |
+| `--skip-license` | a licença é MIT, mas o `LICENSE` fica na raiz do repositório, não nesta pasta |
+| `--allow-missing-repository` | de quando não havia repositório; com o `repository` preenchido, pode sair |
 
 O `vsce` também verifica o README: links relativos (`../../README.md`) quebram no Marketplace e fazem o empacotamento falhar sem um repositório configurado. Por isso o README da extensão não tem links para fora da pasta.
 
@@ -948,8 +948,8 @@ Siga o modelo dos provedores existentes: `vscode.languages.register<Coisa>Provid
 Antes de publicar, decida e preencha no `package.json`:
 
 - `publisher`: o seu identificador de publicador;
-- `license`: e crie o arquivo `LICENSE` (aí o `--skip-license` pode sair do script);
-- `repository`: a URL do repositório (aí o `--allow-missing-repository` pode sair, e links relativos no README voltam a funcionar);
+- `license`: já é MIT; copie o `LICENSE` da raiz para esta pasta para tirar o `--skip-license` do script;
+- `repository`: já aponta para o GitHub (o `--allow-missing-repository` pode sair, e links relativos no README voltam a funcionar);
 - opcionalmente `icon` (PNG 128×128) e `galleryBanner`.
 
 **VS Code Marketplace (Microsoft):**

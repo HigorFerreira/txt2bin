@@ -1,7 +1,17 @@
 {
   "name": "txt2bin",
   "version": "0.2.0",
-  "description": "Escreva arquivos binários em texto puro: bytes, números, texto, base64 e assembly de várias arquiteturas",
+  "description": "Write binary files as plain text: hex, text, base64, numbers in any byte order, self-computing labels and inline assembly for 30+ architectures",
+  "license": "MIT",
+  "author": "Higor",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HigorFerreira/txt2bin.git"
+  },
+  "homepage": "https://github.com/HigorFerreira/txt2bin#readme",
+  "bugs": {
+    "url": "https://github.com/HigorFerreira/txt2bin/issues"
+  },
   "type": "module",
   "bin": {
     "txt2bin": "./dist/cli.js"
@@ -39,6 +49,12 @@
     "llvm",
     "gltf",
     "file-format",
-    "bytes"
+    "bytes",
+    "plain-text",
+    "binary-format",
+    "midi",
+    "boot-sector",
+    "intel-hex",
+    "ttb"
   ]
 }

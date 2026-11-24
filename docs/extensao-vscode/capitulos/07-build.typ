@@ -56,8 +56,8 @@ vsce package --no-dependencies --skip-license --allow-missing-repository
   columns: (auto, 1fr),
   table.header[opção][por quê],
   [`--no-dependencies`], [não há dependências de execução: está tudo no `dist/extension.js`.],
-  [`--skip-license`], [ainda não há licença (uma decisão pendente do Higor).],
-  [`--allow-missing-repository`], [ainda não há repositório público.],
+  [`--skip-license`], [a licença é MIT, mas o arquivo `LICENSE` está na raiz do repositório, e o `vsce` o procura dentro de `editores/vscode/`.],
+  [`--allow-missing-repository`], [herança de quando não havia repositório; com o `repository` já preenchido, pode sair.],
 )
 
 O `vsce` também confere o README: links relativos para fora da pasta, como `../../README.md`, quebram no Marketplace e fazem o empacotamento falhar quando não há repositório configurado. Por isso o README da extensão não tem links para fora de `editores/vscode/`.

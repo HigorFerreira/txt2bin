@@ -69,5 +69,5 @@ Os números à esquerda são as linhas do arquivo. A linha 22 é o coração do 
 Os capítulos 3 a 5 são o núcleo. Os outros podem ser lidos em qualquer ordem.
 
 #nota[
-  A especificação completa da linguagem está no `README.md` da raiz do repositório. O raciocínio por trás das decisões do conversor está no `CONTEXTO.md`. Uma versão de consulta deste guia, em Markdown e mais seca, está em `editores/vscode/SOBRE-A-EXTENSAO.md`.
+  A especificação completa da linguagem está em `docs/especificacao.md`. O raciocínio por trás das decisões do conversor está no `CONTEXTO.md`. Uma versão de consulta deste guia, em Markdown e mais seca, está em `editores/vscode/SOBRE-A-EXTENSAO.md`.
 ]
