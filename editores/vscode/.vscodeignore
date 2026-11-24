@@ -4,3 +4,6 @@ build.ts
 tsconfig.json
 bun.lock
 .vscode/**
+test/**
+scripts/**
+previa.html

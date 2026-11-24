@@ -219,7 +219,8 @@ Casos verificados com bytes conferidos:
   - comandos `txt2bin.gerar`, `txt2bin.mapa`, `txt2bin.hex`;
   - snippets `glb`, `bloco`, `asm`, `boot`, `@`, `#`.
 - **Configurações:** `txt2bin.validacao` (`aoDigitar` | `aoSalvar` | `desligada`), `txt2bin.atraso` (400 ms), `txt2bin.mostrarOffsets`.
-- **Como foi verificado:** a tokenização foi testada com `vscode-textmate` + `vscode-oniguruma` nos exemplos (e uma prévia em cores do Dark+ foi renderizada). A lógica da extensão foi testada com uma simulação da API `vscode` em Node. **A extensão nunca foi aberta num VS Code de verdade durante a conversa.**
+- **Como é verificada:** `bun test` em `editores/vscode/` roda 25 testes. São 17 de gramática, com o motor de realce do VS Code (`vscode-textmate` + `vscode-oniguruma`), incluindo "nenhum exemplo tem trecho inválido", e 8 da lógica da extensão, com uma imitação da API `vscode` (`test/vscode-falso.ts` + `mock.module`). `bun run previa` gera uma prévia colorida em HTML. **A extensão nunca foi aberta num VS Code de verdade durante a conversa.**
+- **Documentação didática completa:** `editores/vscode/SOBRE-A-EXTENSAO.md` (como funciona, regra por regra da gramática, testes, receitas, publicação).
 - **Pendências:** trocar `publisher` (`seu-publisher`) e `license` (`UNLICENSED`) no `package.json` antes de publicar no Marketplace.
 
 ---

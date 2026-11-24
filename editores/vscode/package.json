@@ -77,7 +77,9 @@
   "scripts": {
     "build": "bun run build.ts",
     "typecheck": "tsc --noEmit",
-    "package": "bun run build && vsce package --no-dependencies --skip-license --allow-missing-repository"
+    "test": "bun test",
+    "previa": "bun run scripts/previa.ts",
+    "package": "bun run typecheck && bun test && bun run build && vsce package --no-dependencies --skip-license --allow-missing-repository"
   },
   "devDependencies": {
     "@types/node": "^26.6.6",
