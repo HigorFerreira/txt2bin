@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.1
+
+- New example: `exemplos/pdf-minimo.ttb`, a valid one-page PDF whose xref offsets and stream length come from labels.
+- README: the MIDI example plays in GarageBand, MuseScore or any MIDI player (QuickTime Player does not play MIDI).
+
 ## 0.3.0
 
 - Messages, help and the `--map` table in **English and Portuguese**. The language follows `--lang`, the `TXT2BIN_LANG` variable or the system locale (Portuguese for `pt*`, English otherwise).

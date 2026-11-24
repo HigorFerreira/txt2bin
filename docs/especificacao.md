@@ -302,6 +302,7 @@ Os erros são `ErroFonte`, com `.linha` e `.formatar(nomeDoArquivo)`. Use `ehErr
 |---|---|
 | `exemplos/gltf-face.ttb` | GLB completo; idêntico byte a byte ao gerado pela versão JS |
 | `exemplos/midi.ttb` | formato big-endian (`+`), tamanho de chunk por rótulos, VLQ com operadores de bits |
+| `exemplos/pdf-minimo.ttb` | PDF de uma página; offsets da tabela xref e `/Length` escritos como texto decimal, dígito a dígito, a partir dos rótulos |
 | `exemplos/boot-x86.ttb` | setor de boot: `assembly(x86_16)` com `org`, texto e `fill` até o byte 510 |
 | `exemplos/arduino-blink.ttb` | AVR para o Arduino Uno, saída em Intel HEX |
 | `exemplos/expressoes.ttb` | tabelas calculadas com `sin`/`cos`, divisões, máscaras |

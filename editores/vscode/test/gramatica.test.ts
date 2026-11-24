@@ -1,6 +1,6 @@
 // Verifica que cada pedaço de um .ttb recebe o escopo (e portanto a cor) certo.
 import { describe, expect, test } from 'bun:test';
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { tokenizar } from './gramatica.ts';
 
@@ -99,7 +99,7 @@ describe('assembly', () => {
 
 describe('exemplos do repositório', () => {
   const dir = join(import.meta.dir, '../../../exemplos');
-  for (const f of ['arduino-blink.ttb', 'boot-x86.ttb', 'expressoes.ttb', 'gltf-face.ttb', 'midi.ttb']) {
+  for (const f of readdirSync(dir).filter(f => f.endsWith('.ttb')).sort()) {
     test(`${f} não tem nada marcado como inválido`, async () => {
       const ruins = (await tokenizar(readFileSync(join(dir, f), 'utf8'))).filter(t => t.escopos.some(s => s.startsWith('invalid')));
       expect(ruins.map(t => `${t.linha}: ${t.texto}`)).toEqual([]);

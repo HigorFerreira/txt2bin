@@ -33,7 +33,7 @@ $end-$start        # track length: computed for you
 ```
 
 ```sh
-npx txt2bin song.ttb song.mid      # 62 bytes. Open it in any music player.
+npx txt2bin song.ttb song.mid      # 62 bytes. Play it in GarageBand, MuseScore or any MIDI player.
 ```
 
 ---
@@ -64,6 +64,7 @@ txt2bin is the missing middle ground: **the file *is* the format.** You read it 
 |---|---|---|
 | **3D models** | A complete `.glb` (glTF) file, JSON chunk and vertex buffer included, with chunk sizes computed from labels. This is where txt2bin was born. | [`gltf-face.ttb`](exemplos/gltf-face.ttb) |
 | **Media files** | A playable MIDI song. The same approach fits any format built from headers and length fields: WAV, BMP, PNG chunks… | [`midi.ttb`](exemplos/midi.ttb) |
+| **Documents** | A valid one-page PDF. Its cross-reference table must list the byte offset of every object, written as decimal text; labels compute them, so you can edit the page freely. | [`pdf-minimo.ttb`](exemplos/pdf-minimo.ttb) |
 | **Boot sectors** | 16-bit x86 code at `org=0x7c00`, padded to byte 510, then `55 AA`. Boot it in QEMU. | [`boot-x86.ttb`](exemplos/boot-x86.ttb) |
 | **Microcontroller firmware** | AVR assembly that blinks an Arduino Uno's LED, written straight to Intel HEX for `avrdude`. | [`arduino-blink.ttb`](exemplos/arduino-blink.ttb) |
 | **Lookup tables** | Sine tables, circle vertices, bit masks, computed in place with `sin`, `round` and friends. | [`expressoes.ttb`](exemplos/expressoes.ttb) |

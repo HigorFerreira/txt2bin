@@ -1,0 +1,91 @@
+<<# =====================================================================
+ Um PDF mínimo, válido, com uma página e uma frase.
+
+ Gere e abra:   txt2bin exemplos/pdf-minimo.ttb ola.pdf
+
+ Um PDF é texto com uma tabela no fim (a "xref") que diz em que byte
+ começa cada objeto. Os offsets saem dos rótulos: mude a frase e a
+ tabela continua certa.
+
+ Na xref, cada offset é escrito como TEXTO decimal de 10 dígitos.
+ Cada dígito é um uint8 calculado: '0' + (offset // 10^k) % 10.
+ Os seis primeiros são sempre 0 aqui (o arquivo tem menos de 10 000 bytes).
+=======================================================================
+<<utf8
+%PDF-1.4\n
+
+<<@obj1
+<<utf8
+1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj\n
+
+<<@obj2
+<<utf8
+2 0 obj << /Type /Pages /Kids [3 0 R] /Count 1 >> endobj\n
+
+<<@obj3
+<<utf8
+3 0 obj << /Type /Page /Parent 2 0 R /MediaBox [0 0 320 120]
+ /Resources << /Font << /F1 5 0 R >> >> /Contents 4 0 R >> endobj\n
+
+<<# O conteúdo da página é um "stream", e o /Length dele também é texto.
+<<@obj4
+<<utf8
+4 0 obj << /Length\s
+<<uint8
+('0' + ($fim_stream - $ini_stream) // 100 % 10)
+('0' + ($fim_stream - $ini_stream) // 10 % 10)
+('0' + ($fim_stream - $ini_stream) % 10)
+<<utf8
+\s>> stream\n
+<<@ini_stream
+<<utf8
+BT /F1 24 Tf 24 50 Td (Feito com txt2bin!) Tj ET\n
+<<@fim_stream
+<<utf8
+endstream endobj\n
+
+<<@obj5
+<<utf8
+5 0 obj << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> endobj\n
+
+<<# ---------------- tabela xref: 6 entradas de exatamente 20 bytes ----------------
+<<@xref
+<<utf8
+xref\n
+0 6\n
+0000000000 65535 f \n
+<<utf8
+000000
+<<uint8
+('0' + $obj1 // 1000 % 10)  ('0' + $obj1 // 100 % 10)  ('0' + $obj1 // 10 % 10)  ('0' + $obj1 % 10)
+<<utf8
+\s00000 n \n
+000000
+<<uint8
+('0' + $obj2 // 1000 % 10)  ('0' + $obj2 // 100 % 10)  ('0' + $obj2 // 10 % 10)  ('0' + $obj2 % 10)
+<<utf8
+\s00000 n \n
+000000
+<<uint8
+('0' + $obj3 // 1000 % 10)  ('0' + $obj3 // 100 % 10)  ('0' + $obj3 // 10 % 10)  ('0' + $obj3 % 10)
+<<utf8
+\s00000 n \n
+000000
+<<uint8
+('0' + $obj4 // 1000 % 10)  ('0' + $obj4 // 100 % 10)  ('0' + $obj4 // 10 % 10)  ('0' + $obj4 % 10)
+<<utf8
+\s00000 n \n
+000000
+<<uint8
+('0' + $obj5 // 1000 % 10)  ('0' + $obj5 // 100 % 10)  ('0' + $obj5 // 10 % 10)  ('0' + $obj5 % 10)
+<<utf8
+\s00000 n \n
+
+<<# ---------------- trailer: onde está a raiz e onde começa a xref ----------------
+<<utf8
+trailer << /Size 6 /Root 1 0 R >>\n
+startxref\n
+<<uint8
+('0' + $xref // 1000 % 10)  ('0' + $xref // 100 % 10)  ('0' + $xref // 10 % 10)  ('0' + $xref % 10)
+<<utf8
+\n%%EOF\n

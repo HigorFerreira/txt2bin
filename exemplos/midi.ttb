@@ -2,7 +2,7 @@
  Um arquivo MIDI (formato 0) que toca um arpejo de dó maior.
 
  O MIDI é BIG-ENDIAN: os tamanhos e campos de cabeçalho usam "+".
- Gere e ouça:   txt2bin exemplos/midi.ttb arpejo.mid
+ Gere e ouça:   txt2bin exemplos/midi.ttb arpejo.mid   (GarageBand, MuseScore… o QuickTime não toca MIDI)
 =======================================================================
 
 <<# ---------------- cabeçalho: chunk MThd ----------------
