@@ -149,7 +149,10 @@ export function activate(ctx: vscode.ExtensionContext) {
           const cab = t.slice(2).trim();
           if (cab.startsWith('#')) { atual = undefined; continue; }
           const rotulo = cab.startsWith('@');
-          const s = new vscode.DocumentSymbol(rotulo ? cab.slice(1) : cab.split(/\s/)[0]!, rotulo ? '' : cab.split(/\s/).slice(1).join(' '),
+          const nome = (rotulo ? cab.slice(1) : cab.split(/\s/)[0]!).trim();
+          // "<<" ou "<<@" ainda sem nome (no meio da digitação): o VS Code recusa símbolo sem nome
+          if (!nome) { atual = undefined; continue; }
+          const s = new vscode.DocumentSymbol(nome, rotulo ? '' : cab.split(/\s/).slice(1).join(' '),
             rotulo ? vscode.SymbolKind.Key : vscode.SymbolKind.Field, doc.lineAt(i).range, doc.lineAt(i).range);
           simbolos.push(s);
           atual = rotulo ? undefined : s;

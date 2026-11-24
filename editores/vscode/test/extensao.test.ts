@@ -60,6 +60,11 @@ describe('extensão', () => {
     expect(registro.provedores.definicao.provideDefinition(d, new Position(21, 7)).range.line).toBe(22);
   });
 
+  test('outline ignora cabeçalhos ainda sem nome (no meio da digitação)', () => {
+    const d = documento('/tmp/digitando.ttb', '<<hex\n00\n<<\n<<@\n<<@fim\n');
+    const s = registro.provedores.simbolos.provideDocumentSymbols(d);
+    expect(s.map((x: { name: string }) => x.name)).toEqual(['hex', 'fim']);
+  });
   test('outline lista seções e rótulos, sem comentários', () => {
     const d = abrir('midi.ttb');
     const nomes = registro.provedores.simbolos.provideDocumentSymbols(d).map((s: falso.DocumentSymbol) => s.name);

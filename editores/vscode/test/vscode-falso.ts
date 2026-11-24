@@ -17,7 +17,11 @@ export class Hover { constructor(public contents: MarkdownString, public range?:
 export class Location { constructor(public uri: unknown, public range: Position) {} }
 export class Diagnostic { source?: string; constructor(public range: Range, public message: string, public severity: number) {} }
 export class InlayHint { paddingLeft?: boolean; constructor(public position: Position, public label: string, public kind: number) {} }
-export class DocumentSymbol { constructor(public name: string, public detail: string, public kind: number, public range: Range, public selectionRange: Range) {} }
+export class DocumentSymbol {
+  constructor(public name: string, public detail: string, public kind: number, public range: Range, public selectionRange: Range) {
+    if (!name || !name.trim()) throw new Error('name must not be falsy');   // como o VS Code real
+  }
+}
 export class EventEmitter<T> { ouvintes: ((x: T) => void)[] = []; event = (f: (x: T) => void) => this.ouvintes.push(f); fire(x: T) { this.ouvintes.forEach(f => f(x)); } }
 export const DiagnosticSeverity = { Error: 0 };
 export const env = { language: 'pt-br' };

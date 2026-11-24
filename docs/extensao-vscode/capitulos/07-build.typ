@@ -67,7 +67,7 @@ O `vsce` também confere o README: links relativos para fora da pasta, como `../
 *Instalar o `.vsix`* no seu VS Code:
 
 ```sh
-code --install-extension txt2bin-vscode-0.2.0.vsix
+code --install-extension txt2bin-vscode-0.2.1.vsix
 ```
 
 Ou, no VS Code: Extensões, menu "…", "Instalar do VSIX…". Para atualizar, gere um novo `.vsix` e instale por cima.
