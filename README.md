@@ -33,7 +33,7 @@ $end-$start        # track length: computed for you
 ```
 
 ```sh
-npx txt2bin song.ttb song.mid      # 62 bytes. Play it in GarageBand, MuseScore or any MIDI player.
+npx txt2bin@latest song.ttb song.mid   # 62 bytes. Play it in GarageBand, MuseScore or any MIDI player.
 ```
 
 ---
@@ -77,7 +77,7 @@ npm install -g txt2bin     # or: bun add -g txt2bin
 txt2bin input.ttb output.bin
 ```
 
-Or run it without installing: `npx txt2bin input.ttb output.bin` (or `bunx`). Requires Node.js 18+ or Bun. The `<<assembly` sections additionally need LLVM (see [Assembly](#assembly)); everything else has zero dependencies.
+Or run it without installing: `npx txt2bin@latest input.ttb output.bin` (or `bunx txt2bin@latest`). The `@latest` matters: `npx` and `bunx` cache the first version they download and keep reusing it. Requires Node.js 18+ or Bun. The `<<assembly` sections additionally need LLVM (see [Assembly](#assembly)); everything else has zero dependencies.
 
 ## A five-minute tour
 
