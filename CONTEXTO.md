@@ -118,6 +118,13 @@ Cada item traz **a decisão**, **o motivo** e, quando houve, **a alternativa des
 - Funções: `sin cos tan asin acos atan atan2 sqrt cbrt exp log log2 log10 hypot rad deg abs min max floor ceil round trunc int float`. Constantes: `pi tau e inf nan`. Literais: `0x 0b 0o`, separador `_`, `'A'`.
 - `$nome` é o offset de um rótulo; `$.` é o offset do próprio valor sendo escrito.
 
+### 3.4b Números como texto (`<<decimal`, `<<octal`; v0.4.0)
+
+- **Motivo:** o exemplo do PDF (24/11) precisava escrever offsets como texto decimal na xref, e a única saída era calcular cada dígito com `('0' + $x // 100 % 10)`. O `tar` tem o mesmo problema em octal.
+- **Decisões:** valores colados, sem separador (como nas seções binárias); largura opcional com zeros à esquerda; valor maior que a largura é **erro** (campos de largura fixa); sinal dentro da largura (`-007`); só inteiros; octal sem negativos; sem `+`.
+- **Sem largura, o tamanho depende do valor**, então a seção é dimensionada a cada passada do ponto fixo, como o `fill`. Durante as passadas, um valor ainda inválido (rótulos provisórios) conta pela largura, ou 1 byte; as regras completas só valem na emissão.
+- Na gramática do VS Code, entrou como uma segunda alternativa da regra 6 (seções numéricas), para não mudar a contagem nem a numeração das regras citadas nos documentos.
+
 ### 3.5 Rótulos e layout em ponto fixo
 
 - Um rótulo pode ser usado antes de ser definido. Todas as referências são checadas antes da montagem (rótulo indefinido é erro, com a linha).

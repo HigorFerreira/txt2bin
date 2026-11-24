@@ -15,11 +15,13 @@ export interface Opcoes {
 export interface Item {
 	secao: SecaoBruta;
 	cab: Cabecalho;
-	tipo: 'comentario' | 'rotulo' | 'bytes' | 'numeros' | 'fill' | 'align' | 'asm';
+	tipo: 'comentario' | 'rotulo' | 'bytes' | 'numeros' | 'texto' | 'fill' | 'align' | 'asm';
 	offset: number;
 	tamanho: number;
 	bytes?: Uint8Array;
 	num?: { tipo: TipoNum; termos: Termo[] };
+	/** <<decimal / <<octal: números escritos como texto ASCII */
+	texto?: { base: 8 | 10; largura?: number; termos: Termo[] };
 	rotulo?: string;
 	preenchimento?: number;
 	expr?: Termo;					// fill: quantidade; align: múltiplo
@@ -35,6 +37,7 @@ export interface Resultado {
 
 const NUMERICOS = new Set(Object.keys(TIPOS));
 const PODE_BIG_ENDIAN = new Set([...NUMERICOS, 'utf16']);
+const BASES_TEXTO: Record<string, 8 | 10> = { decimal: 10, octal: 8 };
 
 /** Envolve erros de expressão/codificação com a linha da seção. */
 function naLinha<T>(linha: number, f: () => T): T {
@@ -98,6 +101,16 @@ function interpretar(secoes: SecaoBruta[]): Item[] {
 					throw new ErroFonte(L, msg().usoAlignFill(cab.nome));
 				return { ...base, tipo: cab.nome, expr: posicionais[0], preenchimento: lerByte(posicionais[1]?.src, L) } as Item;
 			}
+			case 'decimal':
+			case 'octal': {
+				const { posicionais, opcoes } = argsOpcoes(cab.args, L);
+				if (Object.keys(opcoes).length || posicionais.length > 1 || (posicionais[0] && !/^\d+$/.test(posicionais[0].src)))
+					throw new ErroFonte(L, msg().usoTextoNumerico(cab.nome));
+				const largura = posicionais[0] ? Number(posicionais[0].src) : undefined;
+				if (largura === 0) throw new ErroFonte(L, msg().usoTextoNumerico(cab.nome));
+				const termos = naLinha(s.linhaCorpo, () => separarTermos(s.corpo, s.linhaCorpo));
+				return { ...base, tipo: 'texto', texto: { base: BASES_TEXTO[cab.nome]!, largura, termos } } as Item;
+			}
 			case 'assembly': {
 				if (!cab.param) throw new ErroFonte(L, msg().informeArquitetura());
 				const { posicionais, opcoes } = argsOpcoes(cab.args, L);
@@ -130,6 +143,18 @@ function inteiroDe(v: Valor, onde: string): bigint {
 	throw new ErroExpr(msg().precisaSerInteiro(onde, String(v)));
 }
 
+/** Um valor de <<decimal / <<octal como texto, com a largura e as regras do tipo. */
+function textoNumerico(it: Item, t: Termo, aqui: bigint, rotulos: Map<string, bigint>): string {
+	const { base, largura } = it.texto!;
+	const v = inteiroDe(avaliar(t.src, { rotulos, aqui }), msg().valorEm(it.cab.nome));
+	if (base === 8 && v < 0n) throw new ErroExpr(msg().octalNegativo(t.src, String(v)));
+	const digitos = (v < 0n ? -v : v).toString(base);
+	const sinal = v < 0n ? '-' : '';
+	if (largura === undefined) return sinal + digitos;
+	if (sinal.length + digitos.length > largura) throw new ErroExpr(msg().naoCabeNaLargura(t.src, sinal + digitos, largura));
+	return sinal + digitos.padStart(largura - sinal.length, '0');
+}
+
 function substituirExpressoes(codigo: string, linhaCorpo: number, ctx: Contexto): string {
 	return codigo.split('\n').map((l, k) =>
 		l.replace(/\$\{([^}]*)\}/g, (_, e: string) => naLinha(linhaCorpo + k, () => {
@@ -151,6 +176,15 @@ function dimensionar(itens: Item[], rotulos: Map<string, bigint>, opcoes: Opcoes
 				const n = naLinha(it.secao.linha, () => inteiroDe(avaliar(it.expr!.src, ctx), msg().oAlinhamento()));
 				if (n < 1n) throw new ErroFonte(it.secao.linha, msg().alinhamentoMinimo());
 				it.tamanho = Number((n - (BigInt(off) % n)) % n);
+				break;
+			}
+			case 'texto': {
+				// o tamanho depende dos valores; durante as passadas os rótulos são
+				// provisórios, então um valor que ainda não é válido conta pela largura
+				it.tamanho = it.texto!.termos.reduce((soma, t) => {
+					try { return soma + textoNumerico(it, t, BigInt(off) + BigInt(soma), rotulos).length; }
+					catch { return soma + (it.texto!.largura ?? 1); }
+				}, 0);
 				break;
 			}
 			case 'fill': {
@@ -203,6 +237,7 @@ export function montar(fonte: string, opcoes: Opcoes = {}): Resultado {
 	};
 	for (const it of itens) {
 		it.num?.termos.forEach(t => checar(t.src, t.linha));
+		it.texto?.termos.forEach(t => checar(t.src, t.linha));
 		if (it.expr) checar(it.expr.src, it.secao.linha);
 		if (it.asm?.org) checar(it.asm.org.src, it.secao.linha);
 		if (it.tipo === 'asm') it.secao.corpo.split('\n').forEach((l, k) => {
@@ -225,6 +260,13 @@ export function montar(fonte: string, opcoes: Opcoes = {}): Resultado {
 	for (const it of itens) if (it.tipo === 'fill') {
 		const n = naLinha(it.secao.linha, () => inteiroDe(avaliar(it.expr!.src, { rotulos, aqui: BigInt(it.offset) }), msg().aQuantidadeDoFill()));
 		if (n < 0n) throw new ErroFonte(it.secao.linha, msg().fillNegativo(String(n)));
+	}
+
+	// Valores finais dos números em texto (agora com as regras completas)
+	for (const it of itens) if (it.tipo === 'texto') {
+		let s = '';
+		for (const t of it.texto!.termos) s += naLinha(t.linha, () => textoNumerico(it, t, BigInt(it.offset + s.length), rotulos));
+		it.bytes = new TextEncoder().encode(s);
 	}
 
 	// Emissão

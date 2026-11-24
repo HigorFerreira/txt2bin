@@ -68,6 +68,7 @@ Texto antes da primeira diretiva é erro (exceto linhas em branco).
 | `<<uint16` `<<int16` `<<float16` | valores | 2 bytes cada |
 | `<<uint32` `<<int32` `<<float32` | valores | 4 bytes cada |
 | `<<uint64` `<<int64` `<<float64` | valores | 8 bytes cada |
+| `<<decimal [L]` / `<<octal [L]` | valores inteiros | cada valor como texto ASCII, com zeros à esquerda até `L` dígitos |
 | `<<align N [HH]` | — | enche com `HH` (padrão `00`) até o offset ser múltiplo de `N` |
 | `<<fill N [HH]` | — | `N` bytes `HH` (`N` é uma expressão) |
 | `<<@nome` | — | nada; define o rótulo `$nome` |
@@ -146,6 +147,24 @@ Escrever `1 + 2` sem parênteses é erro, com uma mensagem dizendo isso. Assim u
 **Constantes:** `pi`, `tau`, `e`, `inf`, `nan`.
 
 **Rótulos:** `$nome` é o offset do rótulo no arquivo; `$.` é o offset do próprio valor sendo escrito.
+
+### Números como texto: `<<decimal` e `<<octal`
+
+Alguns formatos guardam números como **dígitos**, não em binário: a tabela xref e o `/Length` do PDF, os cabeçalhos do `tar` (em octal), formatos de texto com tamanhos. Essas seções escrevem cada valor como texto ASCII:
+
+```text
+<<decimal 10
+$obj1           # "0000000009": 10 dígitos, zeros à esquerda
+<<decimal
+$fim-$ini       # "49": só os dígitos necessários
+<<octal 11
+0o644           # "00000000644"
+```
+
+- Os valores são escritos **colados**, sem separador; espaços e quebras de linha vão em `<<utf8`.
+- Com largura, um valor que não cabe é erro (campos de largura fixa não podem crescer). Negativos levam o sinal dentro da largura: `<<decimal 4` com `-7` dá `-007`.
+- Sem largura, o tamanho da seção depende do valor (`99` tem 2 bytes, `100` tem 3). O layout em ponto fixo (seção 6) recalcula tudo quando isso muda.
+- Só inteiros. `<<octal` não aceita negativos. `+` não se aplica (texto não tem ordem de bytes).
 
 ## 6. Rótulos e layout
 
@@ -302,7 +321,7 @@ Os erros são `ErroFonte`, com `.linha` e `.formatar(nomeDoArquivo)`. Use `ehErr
 |---|---|
 | `exemplos/gltf-face.ttb` | GLB completo; idêntico byte a byte ao gerado pela versão JS |
 | `exemplos/midi.ttb` | formato big-endian (`+`), tamanho de chunk por rótulos, VLQ com operadores de bits |
-| `exemplos/pdf-minimo.ttb` | PDF de uma página; offsets da tabela xref e `/Length` escritos como texto decimal, dígito a dígito, a partir dos rótulos |
+| `exemplos/pdf-minimo.ttb` | PDF de uma página; offsets da tabela xref, `/Length` e `startxref` com `<<decimal`, a partir dos rótulos |
 | `exemplos/boot-x86.ttb` | setor de boot: `assembly(x86_16)` com `org`, texto e `fill` até o byte 510 |
 | `exemplos/arduino-blink.ttb` | AVR para o Arduino Uno, saída em Intel HEX |
 | `exemplos/expressoes.ttb` | tabelas calculadas com `sin`/`cos`, divisões, máscaras |

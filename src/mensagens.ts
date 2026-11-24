@@ -63,6 +63,9 @@ const pt = {
 	alinhamentoMinimo: () => 'o alinhamento deve ser ≥ 1',
 	rotuloDuplicado: (n: string, linha: number) => `rótulo "${n}" já definido na linha ${linha}`,
 	naoEstabilizou: (max: number) => `o layout não estabilizou em ${max} passadas (tamanhos que dependem uns dos outros em ciclo?)`,
+	usoTextoNumerico: (nome: string) => `uso: <<${nome} [largura], com a largura em dígitos (ex.: <<${nome} 10)`,
+	naoCabeNaLargura: (src: string, texto: string, largura: number) => `${src} = ${texto} não cabe em ${largura} dígito(s)`,
+	octalNegativo: (src: string, v: string) => `${src} = ${v}: <<octal não aceita números negativos`,
 	fillNegativo: (n: string) => `fill com quantidade negativa (${n}): o conteúdo anterior já passou do limite`,
 	foraDoIntervalo: (src: string, v: string, tipo: string, min: string, max: string) => `${src} = ${v} está fora do intervalo de ${tipo} (${min}…${max})`,
 
@@ -172,6 +175,9 @@ const en: Mensagens = {
 	alinhamentoMinimo: () => 'the alignment must be ≥ 1',
 	rotuloDuplicado: (n, linha) => `label "${n}" already defined on line ${linha}`,
 	naoEstabilizou: max => `the layout did not settle after ${max} passes (sizes that depend on each other in a cycle?)`,
+	usoTextoNumerico: nome => `usage: <<${nome} [width], with the width in digits (e.g. <<${nome} 10)`,
+	naoCabeNaLargura: (src, texto, largura) => `${src} = ${texto} does not fit in ${largura} digit(s)`,
+	octalNegativo: (src, v) => `${src} = ${v}: <<octal does not accept negative numbers`,
 	fillNegativo: n => `fill with a negative count (${n}): the content before it is already past the limit`,
 	foraDoIntervalo: (src, v, tipo, min, max) => `${src} = ${v} is out of range for ${tipo} (${min}…${max})`,
 

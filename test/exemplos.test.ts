@@ -16,7 +16,7 @@ const temLLVM = !!acharFerramenta('llvm-mc', 'LLVM_MC') && !!acharFerramenta('ld
 describe('exemplos', () => {
 	test('glTF: idêntico ao gerado pela versão JavaScript', () => expect(sha('gltf-face.ttb')).toEqual(['a5c442280cb27216', 820]));
 	test('MIDI (big-endian)', () => expect(sha('midi.ttb')).toEqual(['820a65af1a5e8b45', 62]));
-	test('PDF mínimo', () => expect(sha('pdf-minimo.ttb')).toEqual(['22908cbedc7ad792', 594]));
+	test('PDF mínimo', () => expect(sha('pdf-minimo.ttb')).toEqual(['e6e2c5bdb41e2cd0', 592]));
 	test('PDF: a xref aponta para cada objeto, mesmo com a frase trocada', () => {
 		const fonte = readFileSync(join(dir, 'pdf-minimo.ttb'), 'utf8');
 		for (const frase of ['Feito com txt2bin!', 'Uma frase bem mais longa, e a xref se ajusta sozinha.']) {

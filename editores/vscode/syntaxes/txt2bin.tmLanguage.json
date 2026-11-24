@@ -133,7 +133,7 @@
       ]
     },
     {
-      "begin": "^(<<)(u?int(?:8|16|32|64)|float(?:16|32|64))(\\+)?\\s*$",
+      "begin": "^(<<)(?:(u?int(?:8|16|32|64)|float(?:16|32|64))(\\+)?|(decimal|octal)(?:\\s+(\\d+))?)\\s*$",
       "beginCaptures": {
         "1": {
           "name": "punctuation.definition.directive.txt2bin"
@@ -143,6 +143,12 @@
         },
         "3": {
           "name": "keyword.operator.endianness.txt2bin"
+        },
+        "4": {
+          "name": "keyword.control.directive.txt2bin"
+        },
+        "5": {
+          "name": "constant.numeric.decimal.txt2bin"
         }
       },
       "end": "(?=^<<)",

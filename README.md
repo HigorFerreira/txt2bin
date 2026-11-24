@@ -177,6 +177,7 @@ Every mistake is reported as `file:line: message`, including errors from the ass
 | `<<uint16` `<<int16` `<<float16` | values | 2 bytes each |
 | `<<uint32` `<<int32` `<<float32` | values | 4 bytes each |
 | `<<uint64` `<<int64` `<<float64` | values | 8 bytes each |
+| `<<decimal [W]` / `<<octal [W]` | integer values | each value as ASCII text, zero-padded to `W` digits (PDF xref tables, tar headers…) |
 | `<<align N [HH]` | — | pads with byte `HH` (default `00`) to a multiple of `N` |
 | `<<fill N [HH]` | — | `N` bytes of `HH`; `N` is an expression |
 | `<<@name` | — | nothing; defines `$name` |
@@ -187,6 +188,7 @@ Every mistake is reported as `file:line: message`, including errors from the ass
 - **Comments:** `#` to end of line in `hex`, `base64` and numeric sections. In text sections `#` is text; use a `<<#` block instead.
 - **Text escapes:** `\n \r \t \0 \\`, `\s` (a space you can see at end of line), `\<` (to start a line with `<<`), `\u{1F600}`.
 - **Labels:** `$name` is the offset of `<<@name`; `$.` is the offset of the value being written.
+- **Numbers as text:** formats like PDF and tar store numbers as digits. `<<decimal 10` writes `$obj1` as `0000000009`; without a width the text takes as many digits as it needs, and the layout adjusts when that changes. A value too wide for its width is an error.
 - **Functions:** `sin cos tan asin acos atan atan2 sqrt cbrt exp log log2 log10 hypot rad deg abs min max floor ceil round trunc int float`. **Constants:** `pi tau e inf nan`.
 - **Operators**, lowest to highest precedence: `|` `^` `&` `<< >>` `+ -` `* / // %` unary `- + ~` `**`. `/` is exact when it can be, `//` is floor division.
 

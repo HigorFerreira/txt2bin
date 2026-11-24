@@ -15,6 +15,30 @@ const erro = (fonte: string) => {
 };
 const ctx = { rotulos: new Map([['a', 10n], ['b', 3n]]), aqui: 100n };
 
+describe('números como texto: <<decimal e <<octal', () => {
+	const texto = (fonte: string) => new TextDecoder().decode(montar(fonte).bytes);
+	test('largura, sinal e octal', () => {
+		expect(texto('<<decimal 10\n9\n')).toBe('0000000009');
+		expect(texto('<<decimal\n42 (-7)\n')).toBe('42-7');
+		expect(texto('<<decimal 4\n(-7)\n')).toBe('-007');
+		expect(texto('<<octal 11\n1234 0o644\n')).toBe('0000000232200000000644');
+	});
+	test('sem largura, o tamanho depende do valor e o layout se ajusta', () => {
+		// "$fim-$ini" ocupa 2 ou 3 bytes conforme o bloco, e o bloco vem depois
+		const f = (n: number) => texto(`<<decimal\n$fim-$ini\n<<utf8\n|\n<<@ini\n<<fill ${n} 41\n<<@fim\n<<decimal\n$.\n`);
+		expect(f(99)).toBe('99|' + 'A'.repeat(99) + '102');
+		expect(f(100)).toBe('100|' + 'A'.repeat(100) + '104');
+	});
+	test('erros', () => {
+		expect(erro('<<decimal 2\n123\n')).toBe('2: 123 = 123 não cabe em 2 dígito(s)');
+		expect(erro('<<octal\n(-1)\n')).toContain('não aceita números negativos');
+		expect(erro('<<decimal\n(1/2)\n')).toContain('precisa ser inteiro');
+		expect(erro('<<decimal x\n1\n')).toContain('uso: <<decimal [largura]');
+		expect(erro('<<decimal+\n1\n')).toContain('não se aplica');
+		expect(erro('<<decimal\n$nada\n')).toBe('2: rótulo indefinido "$nada"');
+	});
+});
+
 describe('exemplo original', () => {
 	test('converte igual à versão em JavaScript', () => {
 		expect(hex('<<utf8\nCoisas em strings escritas, json etc\\n\n<<hex\n04ff2345ab5f2c\n<<uint8\n19\n<<uint16\n24\n<<uint32\n1000\n'))

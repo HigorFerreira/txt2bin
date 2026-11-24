@@ -142,7 +142,7 @@ Quando duas regras casam na mesma posição, *vence a que vem primeiro na lista*
   [3], [`<<utf16` e `<<utf16+`], [texto com escapes; o `+` ganha o escopo de ordem de bytes],
   [4], [`<<hex`], [comentários, pares de dígitos hex e, por fim, qualquer outro caractere em vermelho],
   [5], [`<<base64`, `<<base64url`], [alfabeto, o `=` de preenchimento e o resto em vermelho],
-  [6], [`<<uint8` … `<<float64`, com ou sem `+`], [os 11 tipos numéricos numa regra só; o corpo é expressão],
+  [6], [`<<uint8` … `<<float64`, com ou sem `+`; `<<decimal` e `<<octal`, com largura opcional], [todas as seções de números numa regra só; o corpo é expressão],
   [7], [`<<align`, `<<fill`], [a expressão está no cabeçalho; qualquer coisa no corpo fica vermelha],
   [8], [`<<assembly(arq) opções`], [arquitetura, opções `chave=valor` e o corpo como assembly],
   [9], [qualquer outro `<<…`], [diretiva desconhecida, em vermelho],

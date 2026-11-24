@@ -1,8 +1,9 @@
 # Changelog
 
-## 0.3.1
+## 0.4.0
 
-- New example: `exemplos/pdf-minimo.ttb`, a valid one-page PDF whose xref offsets and stream length come from labels.
+- New `<<decimal [width]` and `<<octal [width]` sections: integer values written as ASCII text, optionally zero-padded. Without a width, the text grows or shrinks with the value and the layout adjusts. Highlighted by the VS Code grammar.
+- New example: `exemplos/pdf-minimo.ttb`, a valid one-page PDF whose xref offsets, stream length and `startxref` come from labels through `<<decimal`.
 - README: the MIDI example plays in GarageBand, MuseScore or any MIDI player (QuickTime Player does not play MIDI).
 
 ## 0.3.0

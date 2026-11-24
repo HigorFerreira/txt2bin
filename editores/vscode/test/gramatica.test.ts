@@ -57,6 +57,16 @@ describe('conteúdo', () => {
     expect(await escopo(f, '*')).toBe('keyword.operator.arithmetic');
     expect(await escopo(f, 'nome')).toBe('invalid.illegal.identifier');
   });
+  test('decimal/octal: nome, largura e conteúdo como expressão', async () => {
+    const f = '<<decimal 10\n$fim-$ini\n<<octal\n0o644\n';
+    expect(await escopo(f, 'decimal')).toBe('keyword.control.directive');
+    expect(await escopo(f, '10')).toBe('constant.numeric.decimal');
+    expect(await escopo(f, 'fim')).toBe('variable.other.label');
+    expect(await escopo(f, 'octal')).toBe('keyword.control.directive');
+    expect(await escopo(f, '0o644')).toBe('constant.numeric.octal');
+    expect(await escopo('<<decimal+\n1\n', 'decimal+')).toBe('invalid.illegal.directive');
+    expect(await escopo('<<decimal x\n1\n', 'decimal')).toBe('invalid.illegal.directive');
+  });
   test('fill/align: argumentos são expressão; conteúdo é erro', async () => {
     const f = '<<fill 510-$.\nlixo\n';
     expect(await escopo(f, '510')).toBe('constant.numeric.decimal');

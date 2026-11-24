@@ -419,11 +419,11 @@ Comentários; sequências do alfabeto (`[A-Za-z0-9+/_\-]+`, a união dos dois al
 **Regra 6: seções numéricas**
 
 ```json
-{ "begin": "^(<<)(u?int(?:8|16|32|64)|float(?:16|32|64))(\\+)?\\s*$",
+{ "begin": "^(<<)(?:(u?int(?:8|16|32|64)|float(?:16|32|64))(\\+)?|(decimal|octal)(?:\\s+(\\d+))?)\\s*$",
   "end": "(?=^<<)", "patterns": [{ "include": "#expressao" }] }
 ```
 
-Uma regra só para os 11 tipos. O `(?: )` agrupa sem capturar.
+Uma regra só para os 11 tipos binários e para `decimal`/`octal`. O `(?: )` agrupa sem capturar. As duas alternativas impedem combinações inválidas: o `+` só existe nos tipos binários (grupo 3), e a largura (grupo 5, pintada como número) só em `decimal`/`octal`. `<<decimal+` e `<<uint8 5` não casam e caem na regra 9, em vermelho.
 
 **Regra 7: `<<align` e `<<fill`**
 
