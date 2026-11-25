@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.1
+
+- New Marketplace page: a tour of the txt2bin language, examples of what you can build, a directive summary and how to compile from the command line.
+- The extension description is now in English.
+
 ## 0.3.0
 
 - First release on the Visual Studio Marketplace.
