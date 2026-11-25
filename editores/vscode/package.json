@@ -3,7 +3,7 @@
   "displayName": "txt2bin",
   "description": "Realce de sintaxe, erros em tempo real e offsets para arquivos .ttb do txt2bin",
   "version": "0.2.1",
-  "publisher": "seu-publisher",
+  "publisher": "higorferreira",
   "license": "MIT",
   "icon": "icones/icone.png",
   "repository": {

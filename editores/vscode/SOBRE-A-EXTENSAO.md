@@ -114,7 +114,7 @@ Comandos (dentro de `editores/vscode/`):
   "displayName": "txt2bin",           // nome exibido na lista de extensões
   "description": "...",
   "version": "0.2.1",
-  "publisher": "seu-publisher",       // PRECISA ser trocado antes de publicar (seção 13)
+  "publisher": "higorferreira",       // ID do publisher no Marketplace (seção 13)
   "license": "MIT",
   "engines": { "vscode": "^1.85.0" }, // versão mínima do VS Code; casa com @types/vscode@1.85
   "categories": ["Programming Languages", "Linters"],

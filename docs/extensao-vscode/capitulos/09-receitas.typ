@@ -74,7 +74,7 @@ Antes de publicar, confira estes campos do `package.json`:
 #table(
   columns: (auto, 1fr),
   table.header[campo][situação],
-  [`publisher`], [ainda é o marcador `seu-publisher`],
+  [`publisher`], [`higorferreira`, o ID criado no Marketplace],
   [`license`], [MIT. Copiar o `LICENSE` da raiz para `editores/vscode/` permite tirar o `--skip-license` do script],
   [`repository`], [preenchido com o GitHub; o `--allow-missing-repository` pode sair],
   [`icon`], [opcional: um PNG de 128 × 128],
