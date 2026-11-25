@@ -14,7 +14,7 @@ Suporte aos arquivos `.ttb` do txt2bin, o formato de texto para escrever arquivo
 ## Instalar
 
 ```sh
-code --install-extension txt2bin-vscode-0.2.1.vsix
+code --install-extension txt2bin-vscode-0.3.0.vsix
 ```
 
 Ou, no VS Code: *Extensões* → menu `…` → *Instalar do VSIX…*.

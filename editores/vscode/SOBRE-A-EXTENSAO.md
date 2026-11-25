@@ -6,7 +6,7 @@
 > até o sublinhado vermelho, mudar a gramática sem quebrar nada, testar sem abrir o
 > VS Code e publicar a extensão.
 >
-> Pasta: `editores/vscode/`. Versão descrita: `0.2.1` (24/11/2026).
+> Pasta: `editores/vscode/`. Versão descrita: `0.3.0` (25/11/2026).
 
 ---
 
@@ -88,7 +88,7 @@ editores/vscode/
 ├── README.md                       página da extensão no Marketplace
 ├── SOBRE-A-EXTENSAO.md             este documento
 ├── dist/extension.js               (gerado) o que o VS Code executa
-└── txt2bin-vscode-0.2.1.vsix       (gerado) o pacote instalável
+└── txt2bin-vscode-0.3.0.vsix       (gerado) o pacote instalável
 ```
 
 Comandos (dentro de `editores/vscode/`):
@@ -113,7 +113,7 @@ Comandos (dentro de `editores/vscode/`):
   "name": "txt2bin-vscode",           // identificador técnico (publisher.name forma o ID único)
   "displayName": "txt2bin",           // nome exibido na lista de extensões
   "description": "...",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "publisher": "higorferreira",       // ID do publisher no Marketplace (seção 13)
   "license": "MIT",
   "engines": { "vscode": "^1.85.0" }, // versão mínima do VS Code; casa com @types/vscode@1.85
@@ -889,7 +889,7 @@ Na janela de desenvolvimento:
 - ***Developer: Inspect Editor Tokens and Scopes*** mostra o escopo de qualquer trecho.
 - ***Developer: Show Running Extensions*** mostra se a extensão foi ativada e quanto tempo levou.
 
-**Instalar o `.vsix`** no seu VS Code normal: `code --install-extension txt2bin-vscode-0.2.1.vsix`, ou *Extensões* → `…` → *Instalar do VSIX…*. Para atualizar, gere um novo `.vsix` e instale por cima.
+**Instalar o `.vsix`** no seu VS Code normal: `code --install-extension txt2bin-vscode-0.3.0.vsix`, ou *Extensões* → `…` → *Instalar do VSIX…*. Para atualizar, gere um novo `.vsix` e instale por cima.
 
 ---
 
@@ -958,7 +958,7 @@ Antes de publicar, decida e preencha no `package.json`:
 2. Crie um *Personal Access Token* no Azure DevOps com o escopo *Marketplace → Manage*.
 3. `bunx vsce login <publisher>` e `bunx vsce publish`.
 
-**Open VSX** (registro usado pelo VSCodium, Cursor, Gitpod e outros editores derivados): conta em `open-vsx.org` e `bunx ovsx publish txt2bin-vscode-0.2.1.vsix -p <token>`.
+**Open VSX** (registro usado pelo VSCodium, Cursor, Gitpod e outros editores derivados): conta em `open-vsx.org` e `bunx ovsx publish txt2bin-vscode-0.3.0.vsix -p <token>`.
 
 O processo de publicação pode ter mudado desde a escrita deste documento; confira a documentação oficial de cada registro antes.
 
