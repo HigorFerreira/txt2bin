@@ -1,14 +1,14 @@
 // Guia didático da extensão do txt2bin para o VS Code.
 // Compilar (na raiz do repositório):
-//   typst compile docs/extensao-vscode/main.typ docs/extensao-vscode.pdf
+//	 typst compile docs/extensao-vscode/main.typ docs/extensao-vscode.pdf
 
 #import "estilo.typ": *
 
 #show: documento.with(
-  titulo: "A extensão txt2bin para VS Code",
-  subtitulo: "Como funciona e como foi concebida",
-  autor: "Higor · txt2bin",
-  data: "versão da extensão 0.2.1 · novembro de 2026",
+	titulo: "A extensão txt2bin para VS Code",
+	subtitulo: "Como funciona e como foi concebida",
+	autor: "Higor · txt2bin",
+	data: "versão da extensão 0.2.1 · novembro de 2026",
 )
 
 #include "capitulos/01-introducao.typ"
