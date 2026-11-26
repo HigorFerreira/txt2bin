@@ -12,7 +12,8 @@
    1. [`<<import` e `<<place`](#11-import-e-place) (próximo a implementar)
    2. [Checksums: `crc32`, `adler32`, soma de 8 bits](#12-checksums-crc32-adler32-soma-de-8-bits)
    3. [Repetição](#13-repetição)
-   4. [Itens menores](#14-itens-menores)
+   4. [`<<text`: valores inline e quebras de linha reais](#14-text-valores-inline-e-quebras-de-linha-reais)
+   5. [Itens menores](#15-itens-menores)
 2. [Ferramentas](#2-ferramentas)
 3. [Extensão do VS Code](#3-extensão-do-vs-code)
 4. [Infraestrutura e divulgação](#4-infraestrutura-e-divulgação)
@@ -117,7 +118,71 @@ crc32($ini_crc, $fim_dados)
 
 **Decisão sugerida:** desenhar depois do import, aproveitando os escopos e os parâmetros que ele trouxer.
 
-### 1.4 Itens menores
+### 1.4 `<<text`: valores inline e quebras de linha reais
+
+**Origem.** Depois de escrever um PDF de duas páginas à mão (`pdf.ttb`, 26/11/2026), o Higor sentiu falta de fazer coisas *inline* e achou cansativo escrever `\n` e `\s` o tempo todo. A primeira ideia foi trocar as seções por marcação com tags de abrir e fechar, como no HTML.
+
+**O que o `pdf.ttb` mostrou.** São três problemas distintos:
+
+1. **Faltam valores inline.** Cada entrada do xref custa 5 linhas (`<<decimal 10`, o rótulo, `<<utf8`, o texto, uma linha em branco) para gerar 20 bytes. O mesmo vale para o `/Length` e o `startxref`.
+2. **Faltam bytes inline.** "Olá" na fonte WinAnsi virou `Ol` + `<<hex E1` + `<<utf8`: três seções para uma palavra.
+3. **As quebras de linha são ignoradas.** Daí o `\n` em toda linha e o `\s` antes dele, porque o editor apaga espaços no fim da linha.
+
+**Decisão: manter as seções e não adotar tags.**
+
+- **Colisão com o conteúdo.** PDF, HTML, XML e SVG estão cheios de `<` e `>`. Hoje só `<<` no começo da linha é especial, e mesmo assim o trailer do PDF precisou de `\<<`. Com tags, todo `<` no meio do texto viraria candidato a escape.
+- **Bytes não aninham.** Um arquivo binário é uma sequência plana. Fechar a tag só acrescenta texto para escrever, sem ganhar estrutura.
+- **O modelo de linhas já funciona bem.** Ele deixa o diff legível, a gramática simples e o offset fácil de mostrar no fim de cada `<<diretiva`.
+
+**Proposta: uma diretiva nova, `<<text [codificação] [eol=...]`.**
+
+| recurso | resolve |
+|---|---|
+| `${expr}` e `${expr:010}` dentro do texto, como o `${...}` que o assembly já tem | valores inline (xref, `/Length`, `startxref`) |
+| `\xE1` dentro do texto | bytes avulsos no meio do texto |
+| `eol=lf` ou `eol=crlf`: a quebra de linha real vira byte | acaba com o `\n` em toda linha |
+| codificação `latin1` (além de `utf8`, `utf16`, `utf16+`) | "Olá" vira `E1`, o que a fonte WinAnsi do PDF espera |
+
+O `eol=crlf` também acaba com o `\s` do xref. O PDF exige 20 bytes por entrada, com o fim de linha sendo espaço + `\n` ou `\r\n`. Com `\r\n`, não sobra o espaço invisível que o editor apaga.
+
+O `pdf.ttb` ficaria assim (cerca de 35 linhas de xref viram 9):
+
+```text
+<<@xref
+<<text eol=crlf
+xref
+0 7
+0000000000 65535 f
+${$cat_obj:010} 00000 n
+${$pages_obj:010} 00000 n
+${$page_1:010} 00000 n
+...
+<<@stream1_obj
+<<text latin1 eol=lf
+5 0 obj << /Length ${$end_stream1-$start_stream1} >>
+stream
+<<@start_stream1
+<<text latin1
+1 0 0 rg 100 600 200 100 re f
+BT /F1 24 Tf 100 500 Td (Olá, PDF!) Tj ET
+<<@end_stream1
+```
+
+**Compatibilidade.** Hoje `${` dentro de `<<utf8` é texto literal. Por isso tudo isso fica na diretiva nova, e o `<<utf8` não muda.
+
+**Perguntas em aberto:**
+
+1. **Sintaxe do formato** em `${expr:fmt}`: seguir a mini-linguagem do Python (`010`, `x`, `08X`, `o`)? Precisa de largura, preenchimento, base e maiúsculas.
+2. **Valor padrão do `eol`.** Sem `eol`, as quebras são ignoradas (como no `<<utf8`) ou viram `\n`? A última linha da seção também termina com quebra?
+3. **`#` dentro de `<<text`.** Continua sendo texto, como no `<<utf8`, ou vira comentário? Um `\#` resolveria, mas PDF (`%`), shell e Markdown usam `#` de verdade.
+4. **Layout.** Um `${$rótulo}` sem largura muda o tamanho do texto quando o valor muda de número de dígitos. O ponto fixo já lida com isso no `<<decimal`; aqui tem de valer igual.
+5. **`\x` em UTF-16.** `\xE1` é um byte cru ou o caractere U+00E1 codificado? Proposta: byte cru, e `\u{E1}` para o caractere.
+6. **Valores inline fora do texto.** Vale levar `${...}` também para `<<hex` (`DE AD ${$len:04x}`)?
+7. **Extensão do VS Code.** Gramática para `${...}` dentro do texto, e hover e offsets por linha.
+
+**Exemplo que fecharia o item:** reescrever `exemplos/pdf-minimo.ttb` com `<<text`, e com isso ver se o ganho se confirma.
+
+### 1.5 Itens menores
 
 - [ ] `<<utf32` / `<<utf32+`.
 - [ ] **Coluna nos erros:** hoje o erro só diz a linha, e o sublinhado no editor ocupa a linha inteira.
@@ -132,7 +197,8 @@ crc32($ini_crc, $fim_dados)
 
 ## 3. Extensão do VS Code
 
-- [ ] **`publisher` do Marketplace** (decisão do Higor; hoje é `seu-publisher`) e publicação no Marketplace e no Open VSX. Roteiro: `docs/publicar-extensao.typ`.
+- [x] **`publisher` do Marketplace:** `higorferreira`. Extensão publicada no Marketplace (0.3.0, 25/11/2026). Roteiro: `docs/publicar-extensao.typ`.
+- [ ] **Open VSX:** publicada, mas inativa até o namespace `higorferreira` ser verificado. O pedido de posse foi aberto em 26/11/2026 e aguarda a equipe do Open VSX.
 - [ ] Autocompletar `$rótulos`, nomes de diretivas e de arquiteturas.
 - [ ] Hover sobre bytes `hex` mostrando o offset de cada byte.
 - [ ] `<<utf8 json` (ou outra anotação) para colorir JSON embutido.

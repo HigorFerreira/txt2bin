@@ -298,7 +298,7 @@ https://open-vsx.org/extension/<publisher>/txt2bin-vscode
 ```
 
 #nota[
-	Um namespace novo aparece como "não verificado" até o dono pedir a verificação (um formulário no GitHub do Open VSX). Não impede ninguém de instalar.
+	*Se o ID já existe no Marketplace, a extensão fica inativa.* O Open VSX mostra "Namespace not verified: higorferreira already exists in another gallery" e a extensão não pode ser instalada até o dono provar a posse. Isso evita que alguém publique uma cópia falsa usando o nome de um publisher conhecido. Clique em *Claim Ownership*; o pedido vira uma issue pública em #link("https://github.com/EclipseFdn/open-vsx.org/issues"). Nela, mostre a página da extensão no Marketplace e o repositório cujo `package.json` declara o mesmo `publisher`. A análise é manual e pode levar dias. Depois de aprovada, a extensão fica ativa e verificada, sem precisar publicar de novo.
 ]
 
 Se o envio for pelo CI, o token vai como segredo do repositório (`OVSX_PAT`) e o passo fica `npx ovsx publish ... -p ${{ secrets.OVSX_PAT }}`.
@@ -335,6 +335,7 @@ Se o envio for pelo CI, o token vai como segredo do repositório (`OVSX_PAT`) e 
 - ☐ conta Eclipse com o GitHub `HigorFerreira`
 - ☐ Publisher Agreement aceito e token gerado
 - ☐ `ovsx create-namespace` e `ovsx publish`
+- ☐ posse do namespace reivindicada (*Claim Ownership*) e aprovada
 
 *Depois*:
 - ☐ instalação pela loja testada
